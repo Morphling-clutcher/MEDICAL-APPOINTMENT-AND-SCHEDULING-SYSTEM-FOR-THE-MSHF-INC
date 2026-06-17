@@ -1,0 +1,60 @@
+{% extends "secretary/base_secretary.html" %}
+{% block page_title %}Patient Records — {{ patient.get_full_name }}{% endblock %}
+{% block secretary_content %}
+<div class="max-w-3xl space-y-6">
+  <!-- Patient header -->
+  <div class="bg-white rounded-xl shadow p-6 flex items-center gap-4">
+    <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+      <span class="text-purple-700 font-bold text-xl">{{ patient.first_name.0 }}{{ patient.last_name.0 }}</span>
+    </div>
+    <div>
+      <p class="font-bold text-gray-800 text-xl">{{ patient.get_full_name }}</p>
+      <p class="text-gray-500 text-sm">{{ patient.email }}</p>
+    </div>
+    <a href="/secretary/walk-in/{{ patient.pk }}/vitals/add/"
+       class="ml-auto px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition">
+      + Take Vitals
+    </a>
+  </div>
+
+  <!-- Appointments -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="font-bold text-gray-800 mb-3">Appointment History</h3>
+    {% if appts %}
+    <div class="space-y-2">
+      {% for appt in appts %}
+      <div class="flex items-center justify-between py-2 border-b border-gray-100">
+        <div>
+          <p class="font-medium text-gray-700">Dr. {{ appt.doctor.get_full_name }}</p>
+          <p class="text-sm text-gray-400">{{ appt.appointment_date|date:"M j, Y" }} at {{ appt.appointment_time|time:"g:i A" }}</p>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+          {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
+          {% elif appt.status == 'Completed' %}bg-blue-100 text-blue-700
+          {% else %}bg-gray-100 text-gray-500{% endif %}">
+          {{ appt.status }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="text-gray-400 text-sm">No appointments.</p>{% endif %}
+  </div>
+
+  <!-- Vitals -->
+  {% if vitals %}
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="font-bold text-gray-800 mb-3">Vital Signs</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-gray-500 border-b"><tr><th class="pb-2">Date</th><th class="pb-2">BP</th><th class="pb-2">Weight</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for v in vitals %}
+          <tr><td class="py-2">{{ v.date_taken|date:"M j, Y" }}</td><td class="py-2">{{ v.bp }}</td><td class="py-2">{{ v.weight }} kg</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

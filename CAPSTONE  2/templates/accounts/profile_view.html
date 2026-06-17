@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}My Profile — MSHFI{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
+        <a href="{% url 'accounts:profile_edit' %}"
+           class="px-4 py-2 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition">
+          Edit Profile
+        </a>
+      </div>
+
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+          <span class="text-blue-700 font-bold text-2xl">{{ request.user.first_name.0|upper }}{{ request.user.last_name.0|upper }}</span>
+        </div>
+        <div>
+          <p class="text-xl font-bold text-gray-900">{{ request.user.get_full_name }}</p>
+          <p class="text-gray-500 capitalize">{{ request.user.role }}</p>
+          <p class="text-gray-500 text-sm">{{ request.user.email }}</p>
+        </div>
+      </div>
+
+      {% if profile %}
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        {% if request.user.role == 'patient' %}
+        <div><span class="font-semibold text-gray-600">Contact:</span> {{ profile.contact_number|default:"—" }}</div>
+        <div><span class="font-semibold text-gray-600">Gender:</span> {{ profile.get_gender_display|default:"—" }}</div>
+        <div><span class="font-semibold text-gray-600">Date of Birth:</span> {{ profile.date_of_birth|default:"—" }}</div>
+        <div><span class="font-semibold text-gray-600">Age:</span> {{ profile.age|default:"—" }}</div>
+        <div class="col-span-2"><span class="font-semibold text-gray-600">Address:</span> {{ profile.address|default:"—" }}</div>
+        <div class="col-span-2"><span class="font-semibold text-gray-600">Guardian:</span> {{ profile.guardian|default:"—" }}</div>
+        {% elif request.user.role == 'doctor' %}
+        <div class="col-span-2"><span class="font-semibold text-gray-600">Specialization:</span> {{ profile.specialization|default:"—" }}</div>
+        {% elif request.user.role == 'secretary' %}
+        <div><span class="font-semibold text-gray-600">Assigned Doctor:</span> {{ profile.assigned_doctor.get_full_name|default:"—" }}</div>
+        <div><span class="font-semibold text-gray-600">Date Assigned:</span> {{ profile.date_assigned|default:"—" }}</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="mt-6 pt-6 border-t border-gray-100">
+        <a href="javascript:history.back()" class="text-blue-600 text-sm hover:underline">&larr; Go back</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

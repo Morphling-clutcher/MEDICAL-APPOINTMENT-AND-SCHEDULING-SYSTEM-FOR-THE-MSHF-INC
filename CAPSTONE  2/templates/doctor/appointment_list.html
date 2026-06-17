@@ -1,0 +1,65 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}Appointments{% endblock %}
+
+{% block doctor_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <!-- Filter -->
+  <div class="flex gap-3 mb-5 flex-wrap">
+    {% for status, label in status_choices %}{% endfor %}
+    <a href="?status=" class="px-4 py-1.5 rounded-full text-sm font-medium {% if not status_filter %}bg-emerald-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
+    <a href="?status=Scheduled" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Scheduled' %}bg-emerald-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Scheduled</a>
+    <a href="?status=Completed" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Completed' %}bg-emerald-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Completed</a>
+    <a href="?status=Cancelled" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Cancelled' %}bg-emerald-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Cancelled</a>
+  </div>
+
+  {% if appointments %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr>
+          <th class="pb-3 font-semibold">Patient</th>
+          <th class="pb-3 font-semibold">Date</th>
+          <th class="pb-3 font-semibold">Time</th>
+          <th class="pb-3 font-semibold">Status</th>
+          <th class="pb-3 font-semibold">Reason</th>
+          <th class="pb-3 font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for appt in appointments %}
+        <tr>
+          <td class="py-3 font-medium text-gray-800">{{ appt.patient.get_full_name }}</td>
+          <td class="py-3 text-gray-600">{{ appt.appointment_date|date:"M j, Y" }}</td>
+          <td class="py-3 text-gray-600">{{ appt.appointment_time|time:"g:i A" }}</td>
+          <td class="py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+              {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
+              {% elif appt.status == 'Completed' %}bg-blue-100 text-blue-700
+              {% elif appt.status == 'Cancelled' %}bg-red-100 text-red-600
+              {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+              {{ appt.status }}
+            </span>
+          </td>
+          <td class="py-3 text-gray-500">{{ appt.reason|truncatechars:40|default:"—" }}</td>
+          <td class="py-3">
+            {% if appt.status == 'Scheduled' or appt.status == 'Rescheduled' %}
+            <div class="flex gap-1 flex-wrap">
+              <a href="/doctor/appointments/{{ appt.pk }}/accept/" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium hover:bg-green-200">Confirm</a>
+              <a href="/doctor/appointments/{{ appt.pk }}/reschedule/" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Reschedule</a>
+              <a href="/doctor/appointments/{{ appt.pk }}/decline/" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200">Cancel</a>
+              <a href="/doctor/appointments/{{ appt.pk }}/complete/" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium hover:bg-emerald-200">Complete</a>
+            </div>
+            {% elif appt.status == 'Completed' %}
+            <a href="/doctor/appointments/{{ appt.pk }}/results/" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Results</a>
+            {% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No appointments found.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}Add Prescription{% endblock %}
+{% block doctor_content %}
+<div class="max-w-xl space-y-6">
+  {% if prescriptions %}
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="font-bold text-gray-800 mb-3">Existing Prescriptions</h3>
+    {% for rx in prescriptions %}
+    <div class="border border-gray-200 rounded-lg p-4 mb-3 text-sm">
+      <p class="font-semibold text-gray-700">{{ rx.medication_names }}</p>
+      {% if rx.treatment %}<p class="text-gray-500 mt-1">Treatment: {{ rx.treatment }}</p>{% endif %}
+      {% if rx.notes %}<p class="text-gray-500 mt-1">Notes: {{ rx.notes }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="bg-white rounded-xl shadow p-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Add Prescription</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-emerald-700 text-white font-bold py-3 rounded-lg hover:bg-emerald-800 transition">Save Prescription</button>
+        <a href="/doctor/appointments/" class="flex-1 text-center border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Done</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

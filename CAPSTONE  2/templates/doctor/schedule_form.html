@@ -1,0 +1,31 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}{{ action }} Schedule Slot{% endblock %}
+
+{% block doctor_content %}
+<div class="max-w-md">
+  <div class="bg-white rounded-xl shadow p-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">{{ action }} Schedule Slot</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      {% if form.non_field_errors %}
+      <p class="text-red-600 text-sm">{{ form.non_field_errors.0 }}</p>
+      {% endif %}
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-emerald-700 text-white font-bold py-3 rounded-lg hover:bg-emerald-800 transition">
+          Save
+        </button>
+        <a href="/doctor/schedule/" class="flex-1 text-center border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

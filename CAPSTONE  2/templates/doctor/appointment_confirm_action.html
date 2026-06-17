@@ -1,0 +1,37 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}{{ action|capfirst }} Appointment{% endblock %}
+{% block doctor_content %}
+<div class="max-w-md">
+  <div class="bg-white rounded-xl shadow p-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">{{ action|capfirst }} Appointment</h2>
+    <div class="bg-gray-50 rounded-lg p-4 mb-6 text-sm space-y-2">
+      <div class="flex justify-between"><span class="text-gray-500">Patient</span><span class="font-medium">{{ appointment.patient.get_full_name }}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Date</span><span class="font-medium">{{ appointment.appointment_date|date:"F j, Y" }}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Time</span><span class="font-medium">{{ appointment.appointment_time|time:"g:i A" }}</span></div>
+    </div>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if action == 'decline' or action == 'cancel' %}
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Reason (optional)</label>
+        <textarea name="reason" rows="3"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Reason for cancellation..."></textarea>
+      </div>
+      {% endif %}
+      <div class="flex gap-3">
+        <button type="submit"
+                class="flex-1 font-bold py-3 rounded-lg transition
+                  {% if action == 'accept' or action == 'complete' %}bg-emerald-700 text-white hover:bg-emerald-800
+                  {% elif action == 'decline' or action == 'cancel' %}bg-red-600 text-white hover:bg-red-700
+                  {% else %}bg-blue-700 text-white hover:bg-blue-800{% endif %}">
+          Confirm {{ action|capfirst }}
+        </button>
+        <a href="/doctor/appointments/" class="flex-1 text-center border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">
+          Back
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

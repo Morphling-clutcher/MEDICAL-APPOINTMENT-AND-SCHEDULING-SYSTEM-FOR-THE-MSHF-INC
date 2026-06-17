@@ -1,0 +1,66 @@
+{% extends "secretary/base_secretary.html" %}
+{% block page_title %}Manage Appointments{% endblock %}
+
+{% block secretary_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <!-- Filters -->
+  <form method="get" class="flex gap-3 mb-5 flex-wrap">
+    <select name="status" onchange="this.form.submit()"
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+      <option value="">All Statuses</option>
+      <option value="Scheduled" {% if status_filter == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+      <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+      <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+      <option value="Rescheduled" {% if status_filter == 'Rescheduled' %}selected{% endif %}>Rescheduled</option>
+    </select>
+    <input type="date" name="date" value="{{ date_filter }}" onchange="this.form.submit()"
+           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+  </form>
+
+  {% if appointments %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr>
+          <th class="pb-3 font-semibold">Patient</th>
+          <th class="pb-3 font-semibold">Doctor</th>
+          <th class="pb-3 font-semibold">Date</th>
+          <th class="pb-3 font-semibold">Time</th>
+          <th class="pb-3 font-semibold">Status</th>
+          <th class="pb-3 font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for appt in appointments %}
+        <tr>
+          <td class="py-3 font-medium">{{ appt.patient.get_full_name }}</td>
+          <td class="py-3 text-gray-600">Dr. {{ appt.doctor.get_full_name }}</td>
+          <td class="py-3 text-gray-600">{{ appt.appointment_date|date:"M j, Y" }}</td>
+          <td class="py-3 text-gray-600">{{ appt.appointment_time|time:"g:i A" }}</td>
+          <td class="py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+              {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
+              {% elif appt.status == 'Completed' %}bg-blue-100 text-blue-700
+              {% elif appt.status == 'Cancelled' %}bg-red-100 text-red-600
+              {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+              {{ appt.status }}
+            </span>
+          </td>
+          <td class="py-3">
+            {% if appt.status == 'Scheduled' or appt.status == 'Rescheduled' %}
+            <div class="flex gap-1">
+              <a href="/secretary/appointments/{{ appt.pk }}/approve/" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium hover:bg-green-200">Approve</a>
+              <a href="/secretary/appointments/{{ appt.pk }}/cancel/" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200">Cancel</a>
+            </div>
+            {% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No appointments found.</p>
+  {% endif %}
+</div>
+{% endblock %}

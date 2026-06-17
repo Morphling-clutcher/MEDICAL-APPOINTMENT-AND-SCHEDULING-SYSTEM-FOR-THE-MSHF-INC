@@ -1,0 +1,61 @@
+{% extends "admin_panel/base_admin.html" %}
+{% block page_title %}Manage Users{% endblock %}
+
+{% block admin_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex gap-2">
+      <a href="?role=" class="px-3 py-1.5 rounded-full text-sm font-medium {% if not role_filter %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
+      <a href="?role=patient" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'patient' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Patients</a>
+      <a href="?role=doctor" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'doctor' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Doctors</a>
+      <a href="?role=secretary" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'secretary' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Secretaries</a>
+    </div>
+    <div class="flex gap-2">
+      <a href="/admin-panel/users/create/?role=doctor" class="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition">+ Doctor</a>
+      <a href="/admin-panel/users/create/?role=secretary" class="px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition">+ Secretary</a>
+    </div>
+  </div>
+
+  {% if users %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr><th class="pb-3 font-semibold">Name</th><th class="pb-3 font-semibold">Username</th><th class="pb-3 font-semibold">Role</th><th class="pb-3 font-semibold">Email</th><th class="pb-3 font-semibold">Status</th><th class="pb-3 font-semibold">Actions</th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for user in users %}
+        <tr>
+          <td class="py-3 font-medium text-gray-800">{{ user.get_full_name|default:user.username }}</td>
+          <td class="py-3 text-gray-500">{{ user.username }}</td>
+          <td class="py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize
+              {% if user.role == 'patient' %}bg-blue-100 text-blue-700
+              {% elif user.role == 'doctor' %}bg-emerald-100 text-emerald-700
+              {% else %}bg-purple-100 text-purple-700{% endif %}">
+              {{ user.role }}
+            </span>
+          </td>
+          <td class="py-3 text-gray-500">{{ user.email }}</td>
+          <td class="py-3">
+            {% if user.is_active %}
+            <span class="text-green-600 text-xs font-semibold">Active</span>
+            {% else %}
+            <span class="text-red-500 text-xs font-semibold">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="py-3">
+            <div class="flex gap-1">
+              <a href="/admin-panel/users/{{ user.pk }}/edit/" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit</a>
+              <a href="/admin-panel/users/{{ user.pk }}/delete/" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No users found.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "secretary/base_secretary.html" %}
+{% block page_title %}Patients{% endblock %}
+{% block secretary_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold text-gray-800">All Patients</h2>
+    <a href="/secretary/walk-in/register/" class="px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition">+ Register Walk-In</a>
+  </div>
+  <form method="get" class="mb-4 flex gap-3">
+    <input type="text" name="q" value="{{ search }}" placeholder="Search by name..."
+           class="border border-gray-300 rounded-lg px-4 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+    <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Search</button>
+  </form>
+  {% if patients %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr><th class="pb-3 font-semibold">Name</th><th class="pb-3 font-semibold">Username</th><th class="pb-3 font-semibold">Email</th><th class="pb-3 font-semibold">Actions</th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for patient in patients %}
+        <tr>
+          <td class="py-3 font-medium text-gray-800">{{ patient.get_full_name }}</td>
+          <td class="py-3 text-gray-500">{{ patient.username }}</td>
+          <td class="py-3 text-gray-500">{{ patient.email }}</td>
+          <td class="py-3">
+            <a href="/secretary/patients/{{ patient.pk }}/records/" class="px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium hover:bg-purple-200">View Records</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No patients found.</p>
+  {% endif %}
+</div>
+{% endblock %}

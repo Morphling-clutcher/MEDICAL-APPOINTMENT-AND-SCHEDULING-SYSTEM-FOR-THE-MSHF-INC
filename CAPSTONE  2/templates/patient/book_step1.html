@@ -1,0 +1,46 @@
+{% extends "patient/base_patient.html" %}
+{% block page_title %}Book Appointment — Choose Doctor{% endblock %}
+
+{% block patient_content %}
+<div class="max-w-4xl">
+  <!-- Progress -->
+  <div class="flex items-center gap-2 mb-6 text-sm">
+    <span class="px-3 py-1 bg-blue-700 text-white rounded-full font-semibold">1. Select Doctor</span>
+    <span class="text-gray-300">&rarr;</span>
+    <span class="px-3 py-1 bg-gray-200 text-gray-500 rounded-full">2. Choose Slot</span>
+    <span class="text-gray-300">&rarr;</span>
+    <span class="px-3 py-1 bg-gray-200 text-gray-500 rounded-full">3. Confirm</span>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-6">Select a Doctor</h2>
+    {% if doctors %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for doctor in doctors %}
+      <a href="/patient/appointments/book/{{ doctor.pk }}/slots/"
+         class="flex items-center gap-4 p-5 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition group">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-blue-700 font-bold text-lg">{{ doctor.first_name.0 }}{{ doctor.last_name.0 }}</span>
+        </div>
+        <div>
+          <p class="font-bold text-gray-800 group-hover:text-blue-700">Dr. {{ doctor.get_full_name }}</p>
+          <p class="text-sm text-gray-500">
+            {% if doctor.doctor_profile.specialization %}
+              {{ doctor.doctor_profile.specialization }}
+            {% else %}
+              General Medicine
+            {% endif %}
+          </p>
+        </div>
+        <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-400 text-center py-10">No doctors available at this time. Please contact the clinic.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

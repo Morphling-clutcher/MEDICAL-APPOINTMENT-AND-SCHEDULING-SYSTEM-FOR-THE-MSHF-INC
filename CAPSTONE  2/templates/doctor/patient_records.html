@@ -1,0 +1,49 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}Patient Records — {{ patient.get_full_name }}{% endblock %}
+{% block doctor_content %}
+<div class="max-w-3xl space-y-4">
+  <div class="bg-white rounded-xl shadow p-6">
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+        <span class="text-emerald-700 font-bold text-lg">{{ patient.first_name.0 }}{{ patient.last_name.0 }}</span>
+      </div>
+      <div>
+        <p class="font-bold text-gray-800 text-lg">{{ patient.get_full_name }}</p>
+        <p class="text-gray-500 text-sm">{{ patient.email }}</p>
+      </div>
+    </div>
+
+    {% if records %}
+    <h3 class="font-bold text-gray-700 mb-3">Medical Records</h3>
+    {% for record in records %}
+    <div class="border border-gray-200 rounded-lg p-4 mb-3">
+      <p class="font-semibold text-gray-800">{{ record.visit_date|date:"F j, Y" }}</p>
+      {% if record.results %}
+      <p class="text-sm text-gray-600 mt-1"><span class="font-medium">Diagnosis:</span> {{ record.results.diagnosis }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-gray-400 text-sm">No medical records.</p>
+    {% endif %}
+
+    {% if vitals %}
+    <h3 class="font-bold text-gray-700 mt-6 mb-3">Vital Signs</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-gray-500 border-b border-gray-100"><tr><th class="pb-2">Date</th><th class="pb-2">BP</th><th class="pb-2">Weight</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for v in vitals %}
+          <tr>
+            <td class="py-2 text-gray-600">{{ v.date_taken|date:"M j, Y" }}</td>
+            <td class="py-2">{{ v.bp }}</td>
+            <td class="py-2">{{ v.weight }} kg</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

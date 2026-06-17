@@ -1,0 +1,104 @@
+{% extends "patient/base_patient.html" %}
+{% block page_title %}My Appointments{% endblock %}
+
+{% block patient_content %}
+<div class="space-y-6">
+
+  <!-- Upcoming -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Upcoming Appointments</h2>
+    {% if upcoming %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-gray-500 border-b border-gray-200">
+          <tr>
+            <th class="pb-3 font-semibold">Doctor</th>
+            <th class="pb-3 font-semibold">Date</th>
+            <th class="pb-3 font-semibold">Time</th>
+            <th class="pb-3 font-semibold">Status</th>
+            <th class="pb-3 font-semibold">Reason</th>
+            <th class="pb-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for appt in upcoming %}
+          <tr>
+            <td class="py-3 font-medium text-gray-800">Dr. {{ appt.doctor.get_full_name }}</td>
+            <td class="py-3 text-gray-600">{{ appt.appointment_date|date:"M j, Y" }}</td>
+            <td class="py-3 text-gray-600">{{ appt.appointment_time|time:"g:i A" }}</td>
+            <td class="py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
+                {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                {{ appt.status }}
+              </span>
+            </td>
+            <td class="py-3 text-gray-500">{{ appt.reason|truncatechars:40|default:"—" }}</td>
+            <td class="py-3">
+              <div class="flex gap-2">
+                <a href="/patient/appointments/{{ appt.pk }}/reschedule/"
+                   class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition">
+                  Reschedule
+                </a>
+                <a href="/patient/appointments/{{ appt.pk }}/cancel/"
+                   class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200 transition">
+                  Cancel
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-gray-400 py-6 text-center">No upcoming appointments.
+      <a href="/patient/appointments/book/" class="text-blue-600 hover:underline">Book one</a>
+    </p>
+    {% endif %}
+  </div>
+
+  <!-- Past -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Past Appointments</h2>
+    {% if past %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-gray-500 border-b border-gray-200">
+          <tr>
+            <th class="pb-3 font-semibold">Doctor</th>
+            <th class="pb-3 font-semibold">Date</th>
+            <th class="pb-3 font-semibold">Status</th>
+            <th class="pb-3 font-semibold">Feedback</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for appt in past %}
+          <tr>
+            <td class="py-3 font-medium text-gray-800">Dr. {{ appt.doctor.get_full_name }}</td>
+            <td class="py-3 text-gray-600">{{ appt.appointment_date|date:"M j, Y" }}</td>
+            <td class="py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                {% if appt.status == 'Completed' %}bg-blue-100 text-blue-700
+                {% else %}bg-gray-100 text-gray-500{% endif %}">
+                {{ appt.status }}
+              </span>
+            </td>
+            <td class="py-3">
+              {% if appt.status == 'Completed' %}
+              <a href="/feedback/submit/{{ appt.pk }}/"
+                 class="text-blue-600 text-xs hover:underline">Leave feedback</a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-gray-400 py-6 text-center">No past appointments yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

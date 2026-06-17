@@ -1,0 +1,28 @@
+{% extends "secretary/base_secretary.html" %}
+{% block page_title %}Doctor Schedules{% endblock %}
+{% block secretary_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <h2 class="text-lg font-bold text-gray-800 mb-4">All Doctor Schedules</h2>
+  {% if schedules %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr><th class="pb-3 font-semibold">Doctor</th><th class="pb-3 font-semibold">Day</th><th class="pb-3 font-semibold">Start</th><th class="pb-3 font-semibold">End</th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for s in schedules %}
+        <tr>
+          <td class="py-3 font-medium">Dr. {{ s.doctor.get_full_name }}</td>
+          <td class="py-3 text-gray-600">{{ s.get_day_of_week_display }}</td>
+          <td class="py-3 text-gray-600">{{ s.start_time|time:"g:i A" }}</td>
+          <td class="py-3 text-gray-600">{{ s.end_time|time:"g:i A" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No schedules found.</p>
+  {% endif %}
+</div>
+{% endblock %}

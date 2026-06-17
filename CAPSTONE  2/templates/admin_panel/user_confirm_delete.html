@@ -1,0 +1,22 @@
+{% extends "admin_panel/base_admin.html" %}
+{% block page_title %}Delete User{% endblock %}
+{% block admin_content %}
+<div class="max-w-md">
+  <div class="bg-white rounded-xl shadow p-8 text-center">
+    <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Delete User?</h2>
+    <p class="text-gray-600 mb-1 font-medium">{{ edited_user.get_full_name|default:edited_user.username }}</p>
+    <p class="text-gray-500 text-sm mb-6 capitalize">{{ edited_user.role }} &bull; {{ edited_user.email }}</p>
+    <p class="text-red-500 text-sm mb-6">This action cannot be undone. All associated data will be affected.</p>
+    <form method="post" class="flex gap-3 justify-center">
+      {% csrf_token %}
+      <button type="submit" class="px-8 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition">Delete</button>
+      <a href="/admin-panel/users/" class="px-8 py-3 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

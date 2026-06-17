@@ -1,0 +1,29 @@
+{% extends "patient/base_patient.html" %}
+{% block page_title %}Cancel Appointment{% endblock %}
+
+{% block patient_content %}
+<div class="max-w-xl">
+  <div class="bg-white rounded-xl shadow p-8 text-center">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Cancel Appointment?</h2>
+    <p class="text-gray-500 text-sm mb-6">
+      Dr. {{ appointment.doctor.get_full_name }}<br/>
+      {{ appointment.appointment_date|date:"F j, Y" }} at {{ appointment.appointment_time|time:"g:i A" }}
+    </p>
+    <p class="text-sm text-gray-400 mb-6">A cancellation notice will be sent to your email.</p>
+    <form method="post" class="flex gap-3 justify-center">
+      {% csrf_token %}
+      <button type="submit" class="px-8 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition">
+        Yes, Cancel
+      </button>
+      <a href="/patient/appointments/" class="px-8 py-3 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition">
+        Keep It
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

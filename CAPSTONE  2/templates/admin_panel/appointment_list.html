@@ -1,0 +1,42 @@
+{% extends "admin_panel/base_admin.html" %}
+{% block page_title %}All Appointments{% endblock %}
+{% block admin_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <div class="flex gap-3 mb-5">
+    <a href="?status=" class="px-4 py-1.5 rounded-full text-sm font-medium {% if not status_filter %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
+    <a href="?status=Scheduled" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Scheduled' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Scheduled</a>
+    <a href="?status=Completed" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Completed' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Completed</a>
+    <a href="?status=Cancelled" class="px-4 py-1.5 rounded-full text-sm font-medium {% if status_filter == 'Cancelled' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Cancelled</a>
+  </div>
+  {% if appointments %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b border-gray-200">
+        <tr><th class="pb-3">Patient</th><th class="pb-3">Doctor</th><th class="pb-3">Date</th><th class="pb-3">Time</th><th class="pb-3">Status</th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for appt in appointments %}
+        <tr>
+          <td class="py-3 font-medium">{{ appt.patient.get_full_name }}</td>
+          <td class="py-3 text-gray-600">Dr. {{ appt.doctor.get_full_name }}</td>
+          <td class="py-3 text-gray-500">{{ appt.appointment_date|date:"M j, Y" }}</td>
+          <td class="py-3 text-gray-500">{{ appt.appointment_time|time:"g:i A" }}</td>
+          <td class="py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+              {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
+              {% elif appt.status == 'Completed' %}bg-blue-100 text-blue-700
+              {% elif appt.status == 'Cancelled' %}bg-red-100 text-red-600
+              {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+              {{ appt.status }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No appointments found.</p>
+  {% endif %}
+</div>
+{% endblock %}

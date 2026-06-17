@@ -1,0 +1,39 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}My Schedule{% endblock %}
+
+{% block doctor_content %}
+<div class="max-w-3xl space-y-4">
+  <div class="flex items-center justify-between">
+    <p class="text-gray-500 text-sm">Manage your weekly consultation schedule. Appointments will only be bookable during these hours.</p>
+    <a href="/doctor/schedule/add/"
+       class="px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium hover:bg-emerald-800 transition">
+      + Add Slot
+    </a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow">
+    {% if schedules %}
+    <div class="divide-y divide-gray-100">
+      {% for s in schedules %}
+      <div class="flex items-center justify-between px-6 py-4">
+        <div>
+          <p class="font-semibold text-gray-800">{{ s.get_day_of_week_display }}</p>
+          <p class="text-sm text-gray-500">{{ s.start_time|time:"g:i A" }} &ndash; {{ s.end_time|time:"g:i A" }}</p>
+        </div>
+        <div class="flex gap-2">
+          <a href="/doctor/schedule/{{ s.pk }}/edit/"
+             class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition">Edit</a>
+          <a href="/doctor/schedule/{{ s.pk }}/delete/"
+             class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200 transition">Delete</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-gray-400">
+      <p>No schedule slots yet. Add one to allow patients to book appointments.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "doctor/base_doctor.html" %}
+{% block page_title %}My Patients{% endblock %}
+{% block doctor_content %}
+<div class="bg-white rounded-xl shadow p-6">
+  <h2 class="text-lg font-bold text-gray-800 mb-4">Patients</h2>
+  {% if patients %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    {% for patient in patients %}
+    <a href="/doctor/patients/{{ patient.pk }}/records/"
+       class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition">
+      <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+        <span class="text-emerald-700 font-bold">{{ patient.first_name.0 }}{{ patient.last_name.0 }}</span>
+      </div>
+      <div>
+        <p class="font-semibold text-gray-800">{{ patient.get_full_name }}</p>
+        <p class="text-sm text-gray-400">{{ patient.email }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-center py-10">No patients yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

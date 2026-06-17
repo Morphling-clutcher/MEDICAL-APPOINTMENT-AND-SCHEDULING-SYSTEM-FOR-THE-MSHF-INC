@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MSHFI Medical Appointment System{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1d4ed8',
+            accent:  '#0ea5e9',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/custom.css" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+  <!-- Flash Messages -->
+  {% if messages %}
+  <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full">
+    {% for message in messages %}
+    <div class="flex items-start gap-3 px-4 py-3 rounded-lg shadow-lg
+      {% if message.tags == 'error' %}bg-red-500 text-white
+      {% elif message.tags == 'success' %}bg-green-500 text-white
+      {% elif message.tags == 'warning' %}bg-yellow-400 text-gray-900
+      {% else %}bg-blue-500 text-white{% endif %}">
+      <span class="flex-1 text-sm font-medium">{{ message }}</span>
+      <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white font-bold leading-none">&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% block body %}{% endblock %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

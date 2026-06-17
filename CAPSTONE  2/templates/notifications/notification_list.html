@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Notifications — MSHFI{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Notifications</h1>
+      <form method="post" action="/notifications/mark-all-read/">
+        {% csrf_token %}
+        <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition">
+          Mark all as read
+        </button>
+      </form>
+    </div>
+
+    {% if notifications %}
+    <div class="space-y-3">
+      {% for notif in notifications %}
+      <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-4 {% if not notif.is_read %}border-l-4 border-blue-500{% endif %}">
+        <div class="w-9 h-9 rounded-full {% if not notif.is_read %}bg-blue-100{% else %}bg-gray-100{% endif %} flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 {% if not notif.is_read %}text-blue-600{% else %}text-gray-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-gray-800 text-sm">{{ notif.message }}</p>
+          <p class="text-gray-400 text-xs mt-1">{{ notif.created_at|timesince }} ago</p>
+        </div>
+        {% if not notif.is_read %}
+        <a href="/notifications/{{ notif.pk }}/read/" class="text-blue-600 text-xs font-medium hover:underline flex-shrink-0">
+          Mark read
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-gray-400">
+      <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+      <p class="text-lg">No notifications yet.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-6">
+      <a href="javascript:history.back()" class="text-blue-600 text-sm hover:underline">&larr; Go back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
