@@ -19,9 +19,31 @@ def secretary_dashboard(request):
         status__in=['Scheduled', 'Rescheduled']
     ).select_related('patient', 'doctor').order_by('appointment_time')
     total_today = today_appts.count()
-    return render(request, 'secretary/dashboard.html', {
-        'today_appts': today_appts, 'total_today': total_today
-    })
+
+    dashboard_data = {
+        'stats': [
+            {'label': "Today's Appointments", 'value': total_today},
+        ],
+        'appointmentsTitle': "Today's Appointments",
+        'appointmentsHref': '/secretary/appointments/',
+        'appointments': [
+            {
+                'primary': a.patient.get_full_name(),
+                'secondary': f'Dr. {a.doctor.get_full_name()}',
+                'date': a.appointment_date.isoformat(),
+                'time': a.appointment_time.strftime('%H:%M'),
+                'status': a.status,
+            }
+            for a in today_appts
+        ],
+        'quickActions': [
+            {'title': 'Appointments', 'description': 'Approve or cancel requests', 'href': '/secretary/appointments/'},
+            {'title': 'Walk-In Registration', 'description': 'Register a walk-in patient', 'href': '/secretary/walk-in/register/'},
+            {'title': 'Schedules', 'description': 'View doctor schedules', 'href': '/secretary/schedules/'},
+            {'title': 'Patients', 'description': 'View patient list', 'href': '/secretary/patients/'},
+        ],
+    }
+    return render(request, 'secretary/dashboard.html', {'dashboard_data': dashboard_data})
 
 
 @role_required('secretary')

@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Brand palette (single source of truth — fixed per request):
+ *   --brand-900  #112E81   224.5 76.7% 28.6%   deep navy   — headings, active icons
+ *   --brand-700  #4647AE   239.4 42.6% 47.8%   indigo      — secondary accents, gradients
+ *   --brand-500  #4382DF   215.8 70.9% 56.9%   primary blue— buttons, links, focus rings
+ *   --brand-200  #AACCD6   193.6 34.9% 75.3%   powder blue — soft surfaces, badges, borders
+ * All "tint" values below (--muted, --accent, --border, etc.) are mathematically
+ * lightened versions of brand-200/brand-500, not new unrelated colors, so every
+ * surface in the dashboard stays inside this one family. All 4 roles now share
+ * this single palette instead of the old per-role blue/emerald/purple/rose split.
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224.5 40% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 224.5 40% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224.5 40% 14%;
+    --primary: 215.8 70.9% 56.9%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 45% 95%;
+    --secondary-foreground: 224.5 76.7% 28.6%;
+    --muted: 205 45% 95.5%;
+    --muted-foreground: 220 20% 46%;
+    --accent: 193.6 55% 92%;
+    --accent-foreground: 224.5 76.7% 28.6%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 200 30% 88%;
+    --input: 200 30% 88%;
+    --ring: 215.8 70.9% 56.9%;
+    --radius: 0.75rem;
+    --chart-1: 215.8 70.9% 56.9%;
+    --chart-2: 239.4 42.6% 47.8%;
+    --chart-3: 224.5 76.7% 28.6%;
+    --chart-4: 193.6 34.9% 75.3%;
+    --chart-5: 205 45% 88%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 40%;
+    --sidebar-primary: 224.5 76.7% 28.6%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 193.6 55% 92%;
+    --sidebar-accent-foreground: 224.5 76.7% 28.6%;
+    --sidebar-border: 200 30% 90%;
+    --sidebar-ring: 215.8 70.9% 56.9%;
+  }
+  .dark {
+    --sidebar-background: 224.5 40% 12%;
+    --sidebar-foreground: 193.6 34.9% 85%;
+    --sidebar-primary: 215.8 70.9% 56.9%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 239.4 42.6% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 224.5 40% 20%;
+    --sidebar-ring: 215.8 70.9% 56.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* Shared entrance animation for dashboard cards — same timing/feel across all 4 roles */
+@layer utilities {
+  @keyframes dash-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up {
+    animation: dash-fade-up 0.35s ease-out both;
+  }
+}

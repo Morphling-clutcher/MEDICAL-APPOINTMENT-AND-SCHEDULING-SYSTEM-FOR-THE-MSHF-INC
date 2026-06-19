@@ -1,80 +1,9 @@
 {% extends "admin_panel/base_admin.html" %}
+{% load django_vite %}
 {% block page_title %}Admin Dashboard{% endblock %}
 
 {% block admin_content %}
-<div class="space-y-6">
-  <!-- Stats grid -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
-      <p class="text-sm text-gray-500">Patients</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_patients }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-emerald-500">
-      <p class="text-sm text-gray-500">Doctors</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_doctors }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-purple-500">
-      <p class="text-sm text-gray-500">Secretaries</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_secretaries }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-rose-500">
-      <p class="text-sm text-gray-500">Total Appointments</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_appts }}</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="bg-white rounded-xl shadow p-5">
-      <p class="text-sm text-gray-500 font-medium">Today's Appointments</p>
-      <p class="text-2xl font-bold text-rose-600 mt-1">{{ today_appts }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5">
-      <p class="text-sm text-gray-500 font-medium">Average Rating</p>
-      <p class="text-2xl font-bold text-yellow-500 mt-1">
-        {% if avg_rating %}{{ avg_rating|floatformat:1 }} / 5{% else %}—{% endif %}
-      </p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 flex gap-4">
-      <a href="/admin-panel/users/create/?role=doctor" class="flex-1 text-center py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-200 transition">+ Doctor</a>
-      <a href="/admin-panel/users/create/?role=secretary" class="flex-1 text-center py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold hover:bg-purple-200 transition">+ Secretary</a>
-    </div>
-  </div>
-
-  <!-- Recent appointments -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold text-gray-800">Recent Appointments</h2>
-      <a href="/admin-panel/appointments/" class="text-rose-600 text-sm hover:underline">View all</a>
-    </div>
-    {% if recent_appts %}
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="text-left text-gray-500 border-b border-gray-200">
-          <tr><th class="pb-2">Patient</th><th class="pb-2">Doctor</th><th class="pb-2">Date</th><th class="pb-2">Status</th></tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          {% for appt in recent_appts %}
-          <tr>
-            <td class="py-2 font-medium">{{ appt.patient.get_full_name }}</td>
-            <td class="py-2 text-gray-600">Dr. {{ appt.doctor.get_full_name }}</td>
-            <td class="py-2 text-gray-500">{{ appt.appointment_date|date:"M j, Y" }}</td>
-            <td class="py-2">
-              <span class="px-2 py-0.5 rounded-full text-xs font-semibold
-                {% if appt.status == 'Scheduled' %}bg-green-100 text-green-700
-                {% elif appt.status == 'Completed' %}bg-blue-100 text-blue-700
-                {% elif appt.status == 'Cancelled' %}bg-red-100 text-red-600
-                {% else %}bg-yellow-100 text-yellow-700{% endif %}">
-                {{ appt.status }}
-              </span>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p class="text-gray-400 text-center py-8">No appointments yet.</p>
-    {% endif %}
-  </div>
-</div>
+{{ dashboard_data|json_script:"dashboard-data" }}
+<div id="react-dashboard-root"></div>
+{% vite_asset 'frontend/src/main-admin.tsx' %}
 {% endblock %}

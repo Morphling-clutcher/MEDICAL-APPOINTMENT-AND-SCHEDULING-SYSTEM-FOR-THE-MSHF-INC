@@ -1,60 +1,9 @@
 {% extends "secretary/base_secretary.html" %}
+{% load django_vite %}
 {% block page_title %}Secretary Dashboard{% endblock %}
 
 {% block secretary_content %}
-<div class="space-y-6">
-  <!-- Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-purple-500">
-      <p class="text-sm text-gray-500 font-medium">Today's Appointments</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_today }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
-      <a href="/secretary/walk-in/register/" class="block">
-        <p class="text-sm text-gray-500 font-medium">Register Walk-In</p>
-        <p class="text-purple-600 text-sm font-medium mt-2">Go &rarr;</p>
-      </a>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
-      <a href="/secretary/schedules/" class="block">
-        <p class="text-sm text-gray-500 font-medium">Doctor Schedules</p>
-        <p class="text-green-600 text-sm font-medium mt-2">View &rarr;</p>
-      </a>
-    </div>
-  </div>
-
-  <!-- Today's list -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold text-gray-800">Today's Schedule</h2>
-      <a href="/secretary/appointments/" class="text-purple-600 text-sm hover:underline">View all</a>
-    </div>
-    {% if today_appts %}
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="text-left text-gray-500 border-b border-gray-100">
-          <tr><th class="pb-2">Time</th><th class="pb-2">Patient</th><th class="pb-2">Doctor</th><th class="pb-2">Status</th><th class="pb-2">Actions</th></tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          {% for appt in today_appts %}
-          <tr>
-            <td class="py-3 font-medium">{{ appt.appointment_time|time:"g:i A" }}</td>
-            <td class="py-3 text-gray-700">{{ appt.patient.get_full_name }}</td>
-            <td class="py-3 text-gray-600">Dr. {{ appt.doctor.get_full_name }}</td>
-            <td class="py-3">
-              <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">{{ appt.status }}</span>
-            </td>
-            <td class="py-3">
-              <a href="/secretary/appointments/{{ appt.pk }}/cancel/" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200">Cancel</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p class="text-gray-400 text-center py-8">No appointments today.</p>
-    {% endif %}
-  </div>
-</div>
+{{ dashboard_data|json_script:"dashboard-data" }}
+<div id="react-dashboard-root"></div>
+{% vite_asset 'frontend/src/main-secretary.tsx' %}
 {% endblock %}

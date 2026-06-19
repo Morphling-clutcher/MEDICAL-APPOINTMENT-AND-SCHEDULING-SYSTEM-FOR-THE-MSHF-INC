@@ -1,56 +1,9 @@
 {% extends "doctor/base_doctor.html" %}
+{% load django_vite %}
 {% block page_title %}Doctor Dashboard{% endblock %}
 
 {% block doctor_content %}
-<div class="space-y-6">
-  <!-- Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-emerald-500">
-      <p class="text-sm text-gray-500 font-medium">Today's Appointments</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ today_appts.count }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
-      <p class="text-sm text-gray-500 font-medium">Upcoming</p>
-      <p class="text-3xl font-bold text-gray-800 mt-1">{{ upcoming_count }}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-purple-500">
-      <p class="text-sm text-gray-500 font-medium">My Schedules</p>
-      <a href="/doctor/schedule/" class="text-purple-600 text-sm hover:underline font-medium">Manage &rarr;</a>
-    </div>
-  </div>
-
-  <!-- Today's appointments -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold text-gray-800">Today's Appointments</h2>
-      <a href="/doctor/appointments/" class="text-emerald-600 text-sm hover:underline">View all</a>
-    </div>
-    {% if today_appts %}
-    <div class="space-y-3">
-      {% for appt in today_appts %}
-      <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-100">
-        <div>
-          <p class="font-semibold text-gray-800">{{ appt.patient.get_full_name }}</p>
-          <p class="text-sm text-gray-500">{{ appt.appointment_time|time:"g:i A" }}
-            {% if appt.reason %} &mdash; {{ appt.reason|truncatechars:50 }}{% endif %}
-          </p>
-        </div>
-        <div class="flex gap-2">
-          <a href="/doctor/appointments/{{ appt.pk }}/complete/"
-             class="px-3 py-1 bg-emerald-600 text-white text-xs rounded font-medium hover:bg-emerald-700 transition">
-            Complete
-          </a>
-          <a href="/doctor/appointments/{{ appt.pk }}/decline/"
-             class="px-3 py-1 bg-red-100 text-red-600 text-xs rounded font-medium hover:bg-red-200 transition">
-            Cancel
-          </a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="text-gray-400 text-center py-8">No appointments scheduled for today.</p>
-    {% endif %}
-  </div>
-</div>
+{{ dashboard_data|json_script:"dashboard-data" }}
+<div id="react-dashboard-root"></div>
+{% vite_asset 'frontend/src/main-doctor.tsx' %}
 {% endblock %}

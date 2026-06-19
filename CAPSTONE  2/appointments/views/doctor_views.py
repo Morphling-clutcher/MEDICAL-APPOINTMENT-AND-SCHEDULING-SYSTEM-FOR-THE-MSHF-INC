@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from datetime import date
+from django.db.models import Count
+from datetime import date, timedelta
 from accounts.decorators import role_required
 from appointments.models import Appointment, Schedule
 from appointments.forms import ScheduleForm, RescheduleForm
@@ -25,9 +26,45 @@ def doctor_dashboard(request):
         appointment_date__gt=date.today(),
         status__in=['Scheduled', 'Rescheduled']
     ).count()
-    return render(request, 'doctor/dashboard.html', {
-        'today_appts': today_appts, 'upcoming_count': upcoming
-    })
+
+    trend_start = date.today() - timedelta(days=13)
+    counts_by_date = {
+        row['appointment_date']: row['c']
+        for row in Appointment.objects.filter(
+            doctor=request.user, appointment_date__gte=trend_start, appointment_date__lte=date.today()
+        ).values('appointment_date').annotate(c=Count('id'))
+    }
+    trend = [
+        {'date': (trend_start + timedelta(days=i)).isoformat(),
+         'value': counts_by_date.get(trend_start + timedelta(days=i), 0)}
+        for i in range(14)
+    ]
+
+    dashboard_data = {
+        'stats': [
+            {'label': "Today's Appointments", 'value': today_appts.count()},
+            {'label': 'Upcoming Appointments', 'value': upcoming},
+        ],
+        'trend': trend,
+        'trendLabel': 'Appointments',
+        'appointmentsTitle': "Today's Appointments",
+        'appointmentsHref': '/doctor/appointments/',
+        'appointments': [
+            {
+                'primary': a.patient.get_full_name(),
+                'date': a.appointment_date.isoformat(),
+                'time': a.appointment_time.strftime('%H:%M'),
+                'status': a.status,
+            }
+            for a in today_appts
+        ],
+        'quickActions': [
+            {'title': 'View Schedule', 'description': 'Manage your weekly hours', 'href': '/doctor/schedule/'},
+            {'title': 'Appointment Requests', 'description': 'Accept, decline, or reschedule', 'href': '/doctor/appointments/'},
+            {'title': 'My Patients', 'description': 'View patient records', 'href': '/doctor/patients/'},
+        ],
+    }
+    return render(request, 'doctor/dashboard.html', {'dashboard_data': dashboard_data})
 
 
 @role_required('doctor')

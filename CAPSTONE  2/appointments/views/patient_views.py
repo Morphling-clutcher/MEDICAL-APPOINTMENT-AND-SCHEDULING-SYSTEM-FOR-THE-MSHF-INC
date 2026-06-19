@@ -26,7 +26,41 @@ def patient_dashboard(request):
         patient=request.user,
         status__in=['Completed', 'Cancelled']
     ).select_related('doctor')[:5]
-    return render(request, 'patient/dashboard.html', {'upcoming': upcoming, 'past': past})
+
+    dashboard_data = {
+        'stats': [
+            {'label': 'Upcoming Appointments', 'value': upcoming.count()},
+            {'label': 'Past Appointments', 'value': past.count()},
+        ],
+        'appointmentsTitle': 'Upcoming Appointments',
+        'appointmentsHref': '/patient/appointments/',
+        'appointments': [
+            {
+                'primary': f'Dr. {a.doctor.get_full_name()}',
+                'secondary': a.reason or '',
+                'date': a.appointment_date.isoformat(),
+                'time': a.appointment_time.strftime('%H:%M'),
+                'status': a.status,
+            }
+            for a in upcoming
+        ],
+        'pastAppointmentsTitle': 'Recent Past Appointments',
+        'pastAppointmentsHref': '/patient/appointments/',
+        'pastAppointments': [
+            {
+                'primary': f'Dr. {a.doctor.get_full_name()}',
+                'date': a.appointment_date.isoformat(),
+                'status': a.status,
+            }
+            for a in past
+        ],
+        'quickActions': [
+            {'title': 'Book Appointment', 'description': 'Schedule a new visit', 'href': '/patient/appointments/book/'},
+            {'title': 'My Appointments', 'description': 'View upcoming & past', 'href': '/patient/appointments/'},
+            {'title': 'Medical Records', 'description': 'View your health history', 'href': '/patient/records/'},
+        ],
+    }
+    return render(request, 'patient/dashboard.html', {'dashboard_data': dashboard_data})
 
 
 @role_required('patient')

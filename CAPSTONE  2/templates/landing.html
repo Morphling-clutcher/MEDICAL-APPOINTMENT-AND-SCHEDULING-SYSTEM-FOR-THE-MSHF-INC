@@ -2,23 +2,23 @@
 {% block title %}Welcome — MSHFI Medical Appointment System{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 flex flex-col">
+<div class="min-h-screen bg-gradient-to-br from-brand-900 via-brand-700 to-brand-500 flex flex-col">
 
   <!-- Header -->
   <header class="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-        <span class="text-blue-800 font-bold text-lg">M</span>
+        <span class="text-brand-900 font-bold text-lg">M</span>
       </div>
       <span class="text-white font-bold text-xl">MSHFI</span>
     </div>
     <div class="flex gap-3">
       <a href="{% url 'accounts:login' %}"
-         class="px-5 py-2 text-white border border-white/40 rounded-lg hover:bg-white/10 transition font-medium text-sm">
+         class="px-5 py-2 text-white border border-white/40 rounded-lg hover:bg-white/10 transition-all duration-200 font-medium text-sm">
         Log In
       </a>
       <a href="{% url 'accounts:register' %}"
-         class="px-5 py-2 bg-white text-blue-800 rounded-lg hover:bg-blue-50 transition font-medium text-sm">
+         class="px-5 py-2 bg-white text-brand-900 rounded-lg hover:bg-brand-50 transition-all duration-200 font-medium text-sm">
         Register
       </a>
     </div>
@@ -26,20 +26,20 @@
 
   <!-- Hero -->
   <main class="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
+    <h1 class="animate-fade-up text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
       Mindalano Specialist Hospital<br class="hidden md:block" /> Foundation Inc.
     </h1>
-    <p class="text-blue-100 text-lg md:text-xl max-w-2xl mb-10">
+    <p class="animate-fade-up text-brand-200 text-lg md:text-xl max-w-2xl mb-10" style="animation-delay: 80ms">
       Book your outpatient consultation online — quickly, easily, and from anywhere.
       No more queues. No more lost paperwork.
     </p>
-    <div class="flex flex-col sm:flex-row gap-4">
+    <div class="animate-fade-up flex flex-col sm:flex-row gap-4" style="animation-delay: 160ms">
       <a href="{% url 'accounts:register' %}"
-         class="px-8 py-4 bg-white text-blue-800 font-bold text-lg rounded-xl shadow-lg hover:bg-blue-50 transition">
+         class="px-8 py-4 bg-white text-brand-900 font-bold text-lg rounded-xl shadow-lg transition-all duration-200 hover:bg-brand-50 hover:-translate-y-0.5">
         Book an Appointment
       </a>
       <a href="{% url 'accounts:login' %}"
-         class="px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-xl hover:bg-white/10 transition">
+         class="px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-xl transition-all duration-200 hover:bg-white/10 hover:-translate-y-0.5">
         Sign In
       </a>
     </div>
@@ -48,35 +48,35 @@
   <!-- Features -->
   <section class="bg-white py-16 px-6">
     <div class="max-w-5xl mx-auto">
-      <h2 class="text-2xl font-bold text-gray-800 text-center mb-10">How It Works</h2>
+      <h2 class="text-2xl font-bold text-slate-900 text-center mb-10">How It Works</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center p-6 rounded-xl bg-blue-50">
-          <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="animate-fade-up text-center p-6 rounded-xl bg-brand-50 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-500/10">
+          <div class="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="text-white text-2xl font-bold">1</span>
           </div>
-          <h3 class="font-bold text-gray-800 text-lg mb-2">Register</h3>
-          <p class="text-gray-600">Create your patient account in minutes — all you need is an email address.</p>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Register</h3>
+          <p class="text-slate-600">Create your patient account in minutes — all you need is an email address.</p>
         </div>
-        <div class="text-center p-6 rounded-xl bg-blue-50">
-          <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="animate-fade-up text-center p-6 rounded-xl bg-brand-50 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-500/10" style="animation-delay: 80ms">
+          <div class="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="text-white text-2xl font-bold">2</span>
           </div>
-          <h3 class="font-bold text-gray-800 text-lg mb-2">Choose a Doctor</h3>
-          <p class="text-gray-600">Browse available doctors, view their schedules, and pick a time that works for you.</p>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Choose a Doctor</h3>
+          <p class="text-slate-600">Browse available doctors, view their schedules, and pick a time that works for you.</p>
         </div>
-        <div class="text-center p-6 rounded-xl bg-blue-50">
-          <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="animate-fade-up text-center p-6 rounded-xl bg-brand-50 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-500/10" style="animation-delay: 160ms">
+          <div class="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="text-white text-2xl font-bold">3</span>
           </div>
-          <h3 class="font-bold text-gray-800 text-lg mb-2">Get Confirmed</h3>
-          <p class="text-gray-600">Receive an email confirmation instantly. We'll remind you the day before your visit.</p>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Get Confirmed</h3>
+          <p class="text-slate-600">Receive an email confirmation instantly. We'll remind you the day before your visit.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-blue-900 text-blue-200 text-center text-sm py-6 px-6">
+  <footer class="bg-brand-900 text-brand-200 text-center text-sm py-6 px-6">
     &copy; 2025 Mindalano Specialist Hospital Foundation Inc. &mdash; All rights reserved.
   </footer>
 </div>

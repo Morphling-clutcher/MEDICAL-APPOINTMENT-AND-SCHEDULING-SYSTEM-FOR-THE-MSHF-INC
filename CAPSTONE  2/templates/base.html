@@ -4,15 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}MSHFI Medical Appointment System{% endblock %}</title>
+  <script>
+    // Back/Forward navigation can restore a page from the browser's
+    // in-memory bfcache without making a new request at all, bypassing the
+    // server's Cache-Control headers entirely. Forcing a reload whenever a
+    // page is restored this way guarantees a fresh request hits the server,
+    // so a dead session gets redirected to login instead of showing stale content.
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#1d4ed8',
-            accent:  '#0ea5e9',
-          }
+            // Fixed brand palette — same 4 colors used across every role's portal.
+            brand: {
+              900: '#112E81',
+              700: '#4647AE',
+              500: '#4382DF',
+              200: '#AACCD6',
+              50:  '#EEF4FA', // derived light tint of brand-200, for subtle surfaces only
+            },
+          },
+          keyframes: {
+            'fade-up': {
+              '0%':   { opacity: 0, transform: 'translateY(6px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+          },
+          animation: {
+            'fade-up': 'fade-up 0.35s ease-out both',
+          },
         }
       }
     }
@@ -41,5 +68,21 @@
   {% block body %}{% endblock %}
 
   {% block extra_js %}{% endblock %}
+
+  <script>
+    // Disable a form's submit button(s) the instant it's submitted, so
+    // clicking/tapping repeatedly (e.g. on a slow connection) can't fire
+    // the request multiple times.
+    document.addEventListener('submit', function (event) {
+      var form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      form.querySelectorAll('button[type="submit"]').forEach(function (btn) {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        var loadingText = btn.getAttribute('data-loading-text');
+        if (loadingText) btn.textContent = loadingText;
+      });
+    });
+  </script>
 </body>
 </html>

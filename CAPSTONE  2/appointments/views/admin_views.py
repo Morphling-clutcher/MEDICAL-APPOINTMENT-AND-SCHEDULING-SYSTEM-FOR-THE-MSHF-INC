@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Count, Avg
-from datetime import date
+from datetime import date, timedelta
 from accounts.decorators import role_required
 from accounts.models import CustomUser, PatientProfile, DoctorProfile, SecretaryProfile
 from accounts.forms import DoctorCreationForm, SecretaryCreationForm, UserEditForm
@@ -20,15 +20,50 @@ def admin_dashboard(request):
     ).count()
     avg_rating        = Feedback.objects.aggregate(avg=Avg('rating'))['avg']
     recent_appts      = Appointment.objects.select_related('patient', 'doctor').order_by('-created_at')[:10]
-    return render(request, 'admin_panel/dashboard.html', {
-        'total_patients':    total_patients,
-        'total_doctors':     total_doctors,
-        'total_secretaries': total_secretaries,
-        'total_appts':       total_appts,
-        'today_appts':       today_appts,
-        'avg_rating':        avg_rating,
-        'recent_appts':      recent_appts,
-    })
+
+    trend_start = date.today() - timedelta(days=13)
+    counts_by_date = {
+        row['appointment_date']: row['c']
+        for row in Appointment.objects.filter(
+            appointment_date__gte=trend_start, appointment_date__lte=date.today()
+        ).values('appointment_date').annotate(c=Count('id'))
+    }
+    trend = [
+        {'date': (trend_start + timedelta(days=i)).isoformat(),
+         'value': counts_by_date.get(trend_start + timedelta(days=i), 0)}
+        for i in range(14)
+    ]
+
+    dashboard_data = {
+        'stats': [
+            {'label': 'Patients', 'value': total_patients},
+            {'label': 'Doctors', 'value': total_doctors},
+            {'label': 'Secretaries', 'value': total_secretaries},
+            {'label': 'Total Appointments', 'value': total_appts},
+            {'label': "Today's Appointments", 'value': today_appts},
+            {'label': 'Average Rating', 'value': round(avg_rating, 1) if avg_rating else None, 'hint': 'out of 5'},
+        ],
+        'trend': trend,
+        'trendLabel': 'Appointments',
+        'appointmentsTitle': 'Recent Appointments',
+        'appointmentsHref': '/admin-panel/appointments/',
+        'appointments': [
+            {
+                'primary': a.patient.get_full_name(),
+                'secondary': f'Dr. {a.doctor.get_full_name()}',
+                'date': a.appointment_date.isoformat(),
+                'status': a.status,
+            }
+            for a in recent_appts
+        ],
+        'quickActions': [
+            {'title': '+ Doctor', 'href': '/admin-panel/users/create/?role=doctor'},
+            {'title': '+ Secretary', 'href': '/admin-panel/users/create/?role=secretary'},
+            {'title': 'View Appointments', 'href': '/admin-panel/appointments/'},
+            {'title': 'View Feedback', 'href': '/admin-panel/feedback/'},
+        ],
+    }
+    return render(request, 'admin_panel/dashboard.html', {'dashboard_data': dashboard_data})
 
 
 @role_required('admin')

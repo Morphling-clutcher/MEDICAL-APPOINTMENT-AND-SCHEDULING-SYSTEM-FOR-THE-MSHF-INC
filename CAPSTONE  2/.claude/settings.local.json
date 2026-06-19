@@ -3,7 +3,10 @@
     "allow": [
       "PowerShell(pip install django==4.2.28 python-dotenv==1.0.1)",
       "PowerShell(Get-Process python -ErrorAction SilentlyContinue)",
-      "PowerShell(Stop-Process -Id 13344,14084 -Force -ErrorAction SilentlyContinue)"
+      "PowerShell(Stop-Process -Id 13344,14084 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npx --version)"
     ]
   }
 }
