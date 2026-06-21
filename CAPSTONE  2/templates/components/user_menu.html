@@ -1,7 +1,7 @@
 {# Top-right avatar dropdown — shared across all 4 role base templates. Independent of the modal system. #}
 {% load static %}
 <div class="relative" id="user-menu">
-  <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-3 cursor-pointer">
+  <button type="button" onclick="toggleDropdown('user-menu-dropdown')" class="flex items-center gap-3 cursor-pointer">
     {% if request.user.profile_picture %}
       <img src="{{ request.user.profile_picture.url }}" class="size-9 rounded-full object-cover" alt="">
     {% else %}
@@ -12,17 +12,7 @@
       <p class="text-slate-400 text-xs capitalize">{{ request.user.role }}</p>
     </div>
   </button>
-  <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-    <a href="/accounts/profile/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">My Profile</a>
-    <a href="/accounts/settings/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Settings</a>
-    <a href="/accounts/help/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Help &amp; Support</a>
-    {% if request.user.role == 'patient' %}
-    <a href="/feedback/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Feedback</a>
-    {% endif %}
-    <hr class="my-1 border-gray-100">
-    <form method="post" action="/accounts/logout/">
-      {% csrf_token %}
-      <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Sign Out</button>
-    </form>
+  <div id="user-menu-dropdown" data-dropdown-menu data-trigger="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+    {% include "components/_account_popover_menu.html" %}
   </div>
 </div>

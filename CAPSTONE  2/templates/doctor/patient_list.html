@@ -6,16 +6,18 @@
   {% if patients %}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {% for patient in patients %}
-    <a href="/doctor/patients/{{ patient.pk }}/records/"
-       class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition">
-      <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+    <div hx-get="{% url 'doctor:patient_quickview' patient_id=patient.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
+         class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition cursor-pointer">
+      <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
         <span class="text-emerald-700 font-bold">{{ patient.first_name.0 }}{{ patient.last_name.0 }}</span>
       </div>
-      <div>
+      <div class="flex-1">
         <p class="font-semibold text-gray-800">{{ patient.get_full_name }}</p>
         <p class="text-sm text-gray-400">{{ patient.email }}</p>
       </div>
-    </a>
+      <a href="/doctor/patients/{{ patient.pk }}/records/" onclick="event.stopPropagation()"
+         class="text-sm text-emerald-700 hover:underline flex-shrink-0">View Records</a>
+    </div>
     {% endfor %}
   </div>
   {% else %}

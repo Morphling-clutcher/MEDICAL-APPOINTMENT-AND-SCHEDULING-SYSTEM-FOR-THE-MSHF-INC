@@ -152,24 +152,81 @@
       }
     });
 
-    // Top-right avatar dropdown — independent of the modal system above.
-    function toggleUserMenu() {
-      const dropdown = document.getElementById('user-menu-dropdown');
+    // Account popover dropdowns (top-right avatar on desktop, bottom-tab "Menu" on mobile) —
+    // independent of the modal system above. Both share the [data-dropdown-menu] marker so
+    // outside-click/Escape handling works the same no matter how many triggers are on the page.
+    function toggleDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
       if (dropdown) dropdown.classList.toggle('hidden');
     }
 
     document.addEventListener('click', function(event) {
-      const menu = document.getElementById('user-menu');
-      const dropdown = document.getElementById('user-menu-dropdown');
-      if (menu && dropdown && !menu.contains(event.target)) {
-        dropdown.classList.add('hidden');
+      document.querySelectorAll('[data-dropdown-menu]').forEach(function(dropdown) {
+        const trigger = document.getElementById(dropdown.dataset.trigger);
+        if (trigger && !trigger.contains(event.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('[data-dropdown-menu]').forEach(function(dropdown) {
+          dropdown.classList.add('hidden');
+        });
+      }
+    });
+
+    // Mobile slide-out nav drawer — mirrors the modal's backdrop-click/Escape pattern above,
+    // but runs independently since the drawer is static per-pageload (no htmx round-trip).
+    function openMobileDrawer() {
+      const drawer = document.getElementById('mobile-drawer');
+      const backdrop = document.getElementById('mobile-drawer-backdrop');
+      const panel = document.getElementById('mobile-drawer-panel');
+      if (!drawer || !backdrop || !panel) return;
+      drawer.classList.remove('pointer-events-none');
+      drawer.setAttribute('aria-hidden', 'false');
+      backdrop.classList.add('opacity-100');
+      panel.classList.remove('-translate-x-full');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeMobileDrawer() {
+      const drawer = document.getElementById('mobile-drawer');
+      const backdrop = document.getElementById('mobile-drawer-backdrop');
+      const panel = document.getElementById('mobile-drawer-panel');
+      if (!drawer || !backdrop || !panel) return;
+      backdrop.classList.remove('opacity-100');
+      panel.classList.add('-translate-x-full');
+      document.body.classList.remove('overflow-hidden');
+      setTimeout(() => {
+        drawer.classList.add('pointer-events-none');
+        drawer.setAttribute('aria-hidden', 'true');
+      }, 300);
+    }
+
+    function toggleMobileDrawer() {
+      const panel = document.getElementById('mobile-drawer-panel');
+      if (!panel) return;
+      if (panel.classList.contains('-translate-x-full')) {
+        openMobileDrawer();
+      } else {
+        closeMobileDrawer();
+      }
+    }
+
+    document.addEventListener('click', function(event) {
+      if (event.target.id === 'mobile-drawer-backdrop') {
+        closeMobileDrawer();
       }
     });
 
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
-        const dropdown = document.getElementById('user-menu-dropdown');
-        if (dropdown) dropdown.classList.add('hidden');
+        const panel = document.getElementById('mobile-drawer-panel');
+        if (panel && !panel.classList.contains('-translate-x-full')) {
+          closeMobileDrawer();
+        }
       }
     });
   </script>

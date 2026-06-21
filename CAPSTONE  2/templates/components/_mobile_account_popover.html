@@ -1,0 +1,15 @@
+{# Mobile bottom-tab "Menu" item — opens the same account popover as the desktop top-right avatar, anchored upward since the trigger sits at the bottom of the screen. #}
+{% load static %}
+<div class="relative flex-1 h-full" id="mobile-account-menu">
+  <button type="button" onclick="toggleDropdown('mobile-account-menu-dropdown')" aria-label="Account menu" class="flex flex-col items-center justify-center gap-0.5 w-full h-full text-slate-500 hover:text-brand-700">
+    {% if request.user.profile_picture %}
+      <img src="{{ request.user.profile_picture.url }}" class="size-6 rounded-full object-cover" alt="">
+    {% else %}
+      <img src="{% static 'img/default-avatar.svg' %}" class="size-6 rounded-full object-cover" alt="">
+    {% endif %}
+    <span class="text-[11px] font-medium">Menu</span>
+  </button>
+  <div id="mobile-account-menu-dropdown" data-dropdown-menu data-trigger="mobile-account-menu" class="hidden absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+    {% include "components/_account_popover_menu.html" %}
+  </div>
+</div>

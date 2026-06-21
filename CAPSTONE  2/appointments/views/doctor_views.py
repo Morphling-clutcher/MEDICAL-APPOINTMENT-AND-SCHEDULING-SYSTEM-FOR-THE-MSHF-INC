@@ -164,6 +164,14 @@ def doctor_appointment_list(request):
 
 
 @role_required('doctor')
+def appointment_detail(request, pk):
+    appt = get_object_or_404(Appointment.objects.select_related('patient'), pk=pk, doctor=request.user)
+    return render(request, 'doctor/_appointment_detail_modal.html', {
+        'appt': appt, 'title': 'Appointment Details',
+    })
+
+
+@role_required('doctor')
 def appointment_accept(request, pk):
     appt = get_object_or_404(Appointment, pk=pk, doctor=request.user, status='Scheduled')
     if request.method == 'POST':
@@ -315,6 +323,20 @@ def doctor_patient_list(request):
     ).values_list('patient_id', flat=True).distinct()
     patients = CustomUser.objects.filter(pk__in=patient_ids)
     return render(request, 'doctor/patient_list.html', {'patients': patients})
+
+
+@role_required('doctor')
+def patient_quickview(request, patient_id):
+    patient = get_object_or_404(CustomUser, pk=patient_id, role='patient')
+    has_appt = Appointment.objects.filter(doctor=request.user, patient=patient).exists()
+    if not has_appt:
+        messages.error(request, 'You do not have access to this patient.')
+        return redirect('doctor:patient_list')
+    profile = getattr(patient, 'patient_profile', None)
+    last_visit = Appointment.objects.filter(doctor=request.user, patient=patient).order_by('-appointment_date').first()
+    return render(request, 'doctor/_patient_quickview_modal.html', {
+        'patient': patient, 'profile': profile, 'last_visit': last_visit, 'title': 'Patient Summary',
+    })
 
 
 @role_required('doctor')

@@ -1,0 +1,31 @@
+{% comment %}
+Mobile slide-out nav drawer — replaces the desktop sidebar's content below md:.
+Usage: {% include "components/_mobile_drawer.html" with nav_template="patient/_nav_links.html" role_label="PATIENT" role_badge_class="bg-brand-200 text-brand-900" %}
+{% endcomment %}
+{% load static %}
+<div id="mobile-drawer" class="md:hidden fixed inset-0 z-50 pointer-events-none" aria-hidden="true">
+  <div id="mobile-drawer-backdrop" class="absolute inset-0 bg-black/50 opacity-0 transition-opacity" style="transition-duration: 300ms;"></div>
+  <div id="mobile-drawer-panel" class="absolute inset-y-0 left-0 w-72 max-w-[85%] bg-white shadow-xl flex flex-col -translate-x-full transition-transform" style="transition-duration: 300ms;" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="px-5 py-5 border-b border-slate-100 flex items-center gap-3">
+      {% if request.user.profile_picture %}
+        <img src="{{ request.user.profile_picture.url }}" class="size-11 rounded-full object-cover" alt="">
+      {% else %}
+        <img src="{% static 'img/default-avatar.svg' %}" class="size-11 rounded-full object-cover" alt="">
+      {% endif %}
+      <div class="min-w-0">
+        <p class="font-bold text-slate-900 text-sm leading-tight truncate">{% if request.user.role == 'doctor' %}Dr. {% endif %}{{ request.user.get_full_name|default:request.user.username }}</p>
+        <span class="inline-flex items-center rounded-full {{ role_badge_class }} px-2 py-0.5 text-[11px] font-semibold tracking-wide mt-1">{{ role_label }}</span>
+      </div>
+      <button type="button" onclick="closeMobileDrawer()" aria-label="Close menu" class="ml-auto flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="px-5 pt-4 pb-1 text-[11px] font-semibold text-slate-400 tracking-widest">MAIN</p>
+    <nav class="flex-1 px-3 py-1 space-y-1 overflow-y-auto">
+      {% include nav_template %}
+    </nav>
+    <div class="px-3 py-4 border-t border-slate-100 space-y-1 flex-shrink-0">
+      {% include "components/_profile_signout_links.html" %}
+    </div>
+  </div>
+</div>

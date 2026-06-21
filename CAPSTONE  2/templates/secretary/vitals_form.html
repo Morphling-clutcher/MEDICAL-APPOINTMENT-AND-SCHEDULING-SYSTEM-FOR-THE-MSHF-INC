@@ -21,7 +21,7 @@
   {% if vitals %}
   <div class="bg-white rounded-xl shadow p-6">
     <h3 class="font-bold text-gray-800 mb-3">Previous Readings</h3>
-    <div class="overflow-x-auto">
+    <div class="hidden md:block overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="text-left text-gray-500 border-b border-gray-100"><tr><th class="pb-2">Date</th><th class="pb-2">BP</th><th class="pb-2">Weight</th></tr></thead>
         <tbody class="divide-y divide-gray-100">
@@ -30,6 +30,15 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+    <div class="flex md:hidden flex-col gap-2">
+      {% for v in vitals %}
+      <div class="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2 text-sm">
+        <span class="text-gray-500">{{ v.date_taken|date:"M j, Y" }}</span>
+        <span class="text-gray-700 font-medium">{{ v.bp }}</span>
+        <span class="text-gray-700">{{ v.weight }} kg</span>
+      </div>
+      {% endfor %}
     </div>
   </div>
   {% endif %}

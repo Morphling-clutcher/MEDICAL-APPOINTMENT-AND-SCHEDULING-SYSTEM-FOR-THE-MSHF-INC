@@ -1,15 +1,15 @@
 {# Modal for appointment confirmation actions (accept, decline) — non-extending partial #}
 <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-40 transition-opacity opacity-0" style="transition-duration: 300ms;" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-  <div class="fixed inset-0 z-40 overflow-y-auto flex items-center justify-center">
-    <div class="w-full max-w-md mx-4 my-8">
-      <div class="bg-white rounded-xl shadow-xl">
+  <div class="fixed inset-0 z-40 overflow-y-auto flex items-end md:items-center justify-center">
+    <div class="modal-panel w-full h-full md:h-auto md:w-full max-w-md md:mx-4 md:my-8 translate-y-full md:translate-y-0 transition-transform" style="transition-duration: 300ms;">
+      <div class="bg-white h-full md:h-auto max-h-full rounded-t-2xl md:rounded-xl shadow-xl flex flex-col">
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
           <h2 id="modal-title" class="text-lg font-bold text-gray-800">{{ action|capfirst }} Appointment</h2>
           <button type="button" onclick="closeModal()" aria-label="Close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 text-2xl leading-none">&times;</button>
         </div>
         <!-- Content -->
-        <div class="px-6 py-6 space-y-4">
+        <div class="px-6 py-6 space-y-4 flex-1 overflow-y-auto">
           <div class="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
             <div class="flex justify-between">
               <span class="text-gray-500">Patient</span>
@@ -55,5 +55,8 @@
 <style>
   #modal-overlay.open {
     opacity: 1 !important;
+  }
+  #modal-overlay.open .modal-panel {
+    transform: translateY(0) !important;
   }
 </style>

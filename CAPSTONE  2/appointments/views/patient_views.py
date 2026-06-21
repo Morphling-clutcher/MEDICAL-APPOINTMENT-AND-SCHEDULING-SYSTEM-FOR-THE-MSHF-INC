@@ -97,10 +97,7 @@ def doctor_profile_view(request, doctor_id):
     })
 
 
-@role_required('patient')
-def book_step2_slots(request, doctor_id):
-    doctor = get_object_or_404(CustomUser, pk=doctor_id, role='doctor')
-    selected_date_str = request.GET.get('date', '')
+def _compute_slots(doctor, selected_date_str):
     slots = []
     error = None
 
@@ -108,10 +105,7 @@ def book_step2_slots(request, doctor_id):
         try:
             selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
         except ValueError:
-            error = 'Invalid date format.'
-            return render(request, 'patient/book_step2_slots.html', {
-                'doctor': doctor, 'slots': [], 'error': error, 'selected_date': selected_date_str
-            })
+            return [], 'Invalid date format.', selected_date_str
 
         if selected_date < date.today():
             error = 'Cannot book an appointment in the past.'
@@ -136,11 +130,34 @@ def book_step2_slots(request, doctor_id):
                         slots.append({'time': t, 'available': t not in booked_times})
                         current += timedelta(minutes=30)
 
-    return render(request, 'patient/book_step2_slots.html', {
+    return slots, error, selected_date_str
+
+
+@role_required('patient')
+def book_step2_slots(request, doctor_id):
+    doctor = get_object_or_404(CustomUser, pk=doctor_id, role='doctor')
+    selected_date_str = request.GET.get('date', '')
+    slots, error, selected_date_str = _compute_slots(doctor, selected_date_str)
+
+    context = {
         'doctor': doctor,
         'slots': slots,
         'selected_date': selected_date_str,
         'error': error,
+        'title': 'Choose a Time Slot',
+    }
+    if request.htmx:
+        return render(request, 'patient/_book_step2_modal.html', context)
+    return render(request, 'patient/book_step2_slots.html', context)
+
+
+@role_required('patient')
+def book_step2_slots_partial(request, doctor_id):
+    doctor = get_object_or_404(CustomUser, pk=doctor_id, role='doctor')
+    selected_date_str = request.GET.get('date', '')
+    slots, error, selected_date_str = _compute_slots(doctor, selected_date_str)
+    return render(request, 'patient/_slot_grid_fragment.html', {
+        'doctor': doctor, 'slots': slots, 'selected_date': selected_date_str, 'error': error,
     })
 
 
@@ -169,6 +186,13 @@ def book_step3_confirm(request):
             ).exists()
             if conflict:
                 messages.error(request, 'This time slot was just taken. Please choose another.')
+                if request.htmx:
+                    slots, _ignored_error, selected_date_str = _compute_slots(doctor, date_str)
+                    return render(request, 'patient/_book_step2_modal.html', {
+                        'doctor': doctor, 'slots': slots, 'selected_date': selected_date_str,
+                        'error': 'This time slot was just taken. Please choose another.',
+                        'title': 'Choose a Time Slot',
+                    })
                 return redirect('patient:book_step2', doctor_id=doctor.pk)
 
             appointment = Appointment.objects.create(
@@ -190,6 +214,13 @@ def book_step3_confirm(request):
                 f"{appointment_time.strftime('%I:%M %p')} has been booked.")
 
         messages.success(request, 'Appointment booked successfully! A confirmation email has been sent.')
+        if request.htmx:
+            response = render(request, 'patient/_book_step3_modal.html', {
+                'doctor': doctor, 'appointment_date': date_str, 'appointment_time': time_str,
+                'title': 'Confirm Appointment',
+            })
+            response['HX-Redirect'] = '/patient/appointments/'
+            return response
         return redirect('patient:appointment_list')
 
     # GET: show confirmation form with pre-filled fields
@@ -199,11 +230,15 @@ def book_step3_confirm(request):
     if not all([doctor_id, date_str, time_str]):
         return redirect('patient:book_step1')
     doctor = get_object_or_404(CustomUser, pk=doctor_id, role='doctor')
-    return render(request, 'patient/book_step3_confirm.html', {
+    context = {
         'doctor': doctor,
         'appointment_date': date_str,
         'appointment_time': time_str,
-    })
+        'title': 'Confirm Appointment',
+    }
+    if request.htmx:
+        return render(request, 'patient/_book_step3_modal.html', context)
+    return render(request, 'patient/book_step3_confirm.html', context)
 
 
 @role_required('patient')
@@ -220,10 +255,14 @@ def reschedule_appointment(request, pk):
             new_time = datetime.strptime(time_str, '%H:%M').time()
         except (ValueError, TypeError):
             messages.error(request, 'Invalid date/time.')
+            if request.htmx:
+                return render(request, 'patient/_reschedule_modal.html', {'appointment': appointment, 'title': 'Reschedule Appointment'})
             return render(request, 'patient/reschedule.html', {'appointment': appointment})
 
         if new_date < date.today():
             messages.error(request, 'Cannot reschedule to a past date.')
+            if request.htmx:
+                return render(request, 'patient/_reschedule_modal.html', {'appointment': appointment, 'title': 'Reschedule Appointment'})
             return render(request, 'patient/reschedule.html', {'appointment': appointment})
 
         with transaction.atomic():
@@ -235,6 +274,8 @@ def reschedule_appointment(request, pk):
             ).exclude(pk=appointment.pk).exists()
             if conflict:
                 messages.error(request, 'That slot is already taken. Choose another time.')
+                if request.htmx:
+                    return render(request, 'patient/_reschedule_modal.html', {'appointment': appointment, 'title': 'Reschedule Appointment'})
                 return render(request, 'patient/reschedule.html', {'appointment': appointment})
 
             appointment.status = 'Rescheduled'
@@ -256,9 +297,32 @@ def reschedule_appointment(request, pk):
                 f"Your appointment with Dr. {appointment.doctor.get_full_name()} has been rescheduled to "
                 f"{new_date.strftime('%B %d, %Y')} at {new_time.strftime('%I:%M %p')}.")
         messages.success(request, 'Appointment rescheduled successfully.')
+        if request.htmx:
+            response = render(request, 'patient/_reschedule_modal.html', {'appointment': appointment, 'title': 'Reschedule Appointment'})
+            response['HX-Redirect'] = '/patient/appointments/'
+            return response
         return redirect('patient:appointment_list')
 
+    if request.htmx:
+        return render(request, 'patient/_reschedule_modal.html', {'appointment': appointment, 'title': 'Reschedule Appointment'})
     return render(request, 'patient/reschedule.html', {'appointment': appointment})
+
+
+@role_required('patient')
+def appointment_detail(request, pk):
+    appointment = get_object_or_404(
+        Appointment.objects.select_related('doctor', 'doctor__doctor_profile'), pk=pk, patient=request.user
+    )
+    medical_record = None
+    if appointment.status == 'Completed':
+        from records.models import ResultsConsultation
+        try:
+            medical_record = appointment.results.medical_records.first()
+        except ResultsConsultation.DoesNotExist:
+            medical_record = None
+    return render(request, 'patient/_appointment_detail_modal.html', {
+        'appointment': appointment, 'medical_record': medical_record, 'title': 'Appointment Details',
+    })
 
 
 @role_required('patient')
@@ -294,6 +358,18 @@ def medical_records(request):
         patient=request.user
     ).select_related('doctor', 'results').order_by('-visit_date')
     return render(request, 'patient/medical_records.html', {'records': records})
+
+
+@role_required('patient')
+def medical_record_detail(request, pk):
+    from records.models import MedicalRecords
+    record = get_object_or_404(
+        MedicalRecords.objects.select_related('doctor', 'results').prefetch_related('results__prescriptions'),
+        pk=pk, patient=request.user
+    )
+    return render(request, 'patient/_medical_record_detail_modal.html', {
+        'record': record, 'title': 'Medical Record',
+    })
 
 
 @role_required('patient')

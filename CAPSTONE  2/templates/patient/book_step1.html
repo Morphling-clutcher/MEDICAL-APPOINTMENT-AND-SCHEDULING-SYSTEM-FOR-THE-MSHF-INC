@@ -41,8 +41,8 @@
              class="px-3 py-1.5 text-sm font-medium text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
             View Profile
           </a>
-          <a href="/patient/appointments/book/{{ doctor.pk }}/slots/"
-             class="px-3 py-1.5 text-sm font-medium bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition">
+          <a hx-get="{% url 'patient:book_step2' doctor_id=doctor.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
+             class="px-3 py-1.5 text-sm font-medium bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition cursor-pointer">
             Book
           </a>
         </div>

@@ -1,0 +1,22 @@
+{% extends "components/modal.html" %}
+{% block modal_content %}
+<div class="space-y-4">
+  <div class="grid grid-cols-2 gap-4 text-sm">
+    <div><span class="font-semibold text-gray-600">Name:</span> {{ patient.get_full_name }}</div>
+    <div><span class="font-semibold text-gray-600">Email:</span> {{ patient.email }}</div>
+    {% if profile %}
+    <div><span class="font-semibold text-gray-600">Contact:</span> {{ profile.contact_number|default:"—" }}</div>
+    <div><span class="font-semibold text-gray-600">Gender:</span> {{ profile.get_gender_display|default:"—" }}</div>
+    {% endif %}
+    <div class="col-span-2"><span class="font-semibold text-gray-600">Last Visit:</span> {{ last_visit.appointment_date|date:"F j, Y"|default:"—" }}</div>
+  </div>
+  <div class="flex gap-3 pt-2">
+    <a href="/secretary/patients/{{ patient.pk }}/records/" class="flex-1 text-center bg-purple-700 text-white font-bold py-3 rounded-lg hover:bg-purple-800 transition">
+      View Full Records
+    </a>
+    <button type="button" onclick="closeModal()" class="flex-1 border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">
+      Close
+    </button>
+  </div>
+</div>
+{% endblock %}

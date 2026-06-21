@@ -71,6 +71,15 @@ def secretary_appointment_list(request):
 
 
 @role_required('secretary')
+def appointment_detail(request, pk):
+    doctor = _assigned_doctor(request.user)
+    appt = get_object_or_404(Appointment.objects.select_related('patient', 'doctor'), pk=pk, doctor=doctor)
+    return render(request, 'secretary/_appointment_detail_modal.html', {
+        'appt': appt, 'title': 'Appointment Details',
+    })
+
+
+@role_required('secretary')
 def appointment_approve(request, pk):
     doctor = _assigned_doctor(request.user)
     appt = get_object_or_404(Appointment, pk=pk, status='Scheduled', doctor=doctor)
@@ -177,6 +186,16 @@ def secretary_patient_list(request):
         ) | CustomUser.objects.filter(role='patient', last_name__icontains=search)
     return render(request, 'secretary/patient_list.html', {
         'patients': patients.distinct(), 'search': search
+    })
+
+
+@role_required('secretary')
+def patient_quickview(request, patient_id):
+    patient = get_object_or_404(CustomUser, pk=patient_id, role='patient')
+    profile = getattr(patient, 'patient_profile', None)
+    last_visit = Appointment.objects.filter(patient=patient).order_by('-appointment_date').first()
+    return render(request, 'secretary/_patient_quickview_modal.html', {
+        'patient': patient, 'profile': profile, 'last_visit': last_visit, 'title': 'Patient Summary',
     })
 
 

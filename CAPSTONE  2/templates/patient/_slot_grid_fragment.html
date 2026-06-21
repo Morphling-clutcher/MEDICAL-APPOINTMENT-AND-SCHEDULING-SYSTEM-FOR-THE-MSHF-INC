@@ -1,0 +1,25 @@
+{% if error %}
+<div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4">{{ error }}</div>
+{% endif %}
+
+{% if slots %}
+<h3 class="text-sm font-semibold text-gray-700 mb-3">Available Time Slots on {{ selected_date }}</h3>
+<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+  {% for slot in slots %}
+    {% if slot.available %}
+    <a hx-get="{% url 'patient:book_confirm' %}?doctor_id={{ doctor.pk }}&appointment_date={{ selected_date }}&appointment_time={{ slot.time|time:'H:i:s' }}"
+       hx-target="#modal-root" hx-swap="innerHTML"
+       class="text-center py-2 px-3 border-2 border-blue-300 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition cursor-pointer">
+      {{ slot.time|time:"g:i A" }}
+    </a>
+    {% else %}
+    <span class="text-center py-2 px-3 bg-gray-100 text-gray-400 rounded-lg text-sm line-through cursor-not-allowed">
+      {{ slot.time|time:"g:i A" }}
+    </span>
+    {% endif %}
+  {% endfor %}
+</div>
+<p class="text-xs text-gray-400 mt-3">Strikethrough slots are already booked.</p>
+{% elif selected_date and not error %}
+<p class="text-gray-400 text-center py-6">No time slots found. Try a different date.</p>
+{% endif %}

@@ -1,0 +1,30 @@
+{% extends "components/modal.html" %}
+{% block modal_content %}
+<div class="flex items-center gap-3 mb-6">
+  {% if doctor.profile_picture %}
+    <img src="{{ doctor.profile_picture.url }}" class="w-12 h-12 rounded-full object-cover" alt="">
+  {% else %}
+    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+      <span class="text-blue-700 font-bold">{{ doctor.first_name.0 }}{{ doctor.last_name.0 }}</span>
+    </div>
+  {% endif %}
+  <div>
+    <p class="font-bold text-gray-800">Dr. {{ doctor.get_full_name }}</p>
+    <p class="text-sm text-gray-500">{% if doctor.doctor_profile.specialization %}{{ doctor.doctor_profile.specialization }}{% endif %}</p>
+  </div>
+</div>
+
+<div class="mb-6">
+  <label class="block text-sm font-semibold text-gray-700 mb-1">Select Date</label>
+  <input type="date" name="date"
+         value="{{ selected_date }}"
+         min="{% now 'Y-m-d' %}"
+         hx-get="{% url 'patient:book_step2_partial' doctor_id=doctor.pk %}"
+         hx-target="#slot-grid" hx-swap="innerHTML" hx-trigger="change"
+         class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div id="slot-grid">
+  {% include "patient/_slot_grid_fragment.html" %}
+</div>
+{% endblock %}
