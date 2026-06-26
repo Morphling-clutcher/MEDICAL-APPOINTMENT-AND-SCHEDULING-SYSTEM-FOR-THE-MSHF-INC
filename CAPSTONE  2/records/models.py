@@ -42,9 +42,20 @@ class Prescription(models.Model):
     medication_names = models.TextField()
     notes            = models.TextField(blank=True)
     treatment        = models.TextField(blank=True)
+    attachment       = models.FileField(
+        upload_to='prescriptions/%Y/%m/', null=True, blank=True,
+        help_text='Optional: photo or scan of a handwritten prescription, lab result, or referral (JPG, PNG, or PDF).'
+    )
 
     def __str__(self):
         return f"Prescription #{self.pk} — {self.date_issued}"
+
+    @property
+    def attachment_is_image(self):
+        if not self.attachment:
+            return False
+        name = self.attachment.name.lower()
+        return name.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp'))
 
 
 class MedicalRecords(models.Model):

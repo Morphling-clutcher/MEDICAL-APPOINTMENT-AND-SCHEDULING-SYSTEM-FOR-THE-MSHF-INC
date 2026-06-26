@@ -10,6 +10,15 @@
       <p class="font-semibold text-gray-700">{{ rx.medication_names }}</p>
       {% if rx.treatment %}<p class="text-gray-500 mt-1">Treatment: {{ rx.treatment }}</p>{% endif %}
       {% if rx.notes %}<p class="text-gray-500 mt-1">Notes: {{ rx.notes }}</p>{% endif %}
+      {% if rx.attachment %}
+      <a href="{{ rx.attachment.url }}" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-1.5 mt-2 text-blue-600 hover:text-blue-800 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+          <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 116.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
+        </svg>
+        View attachment
+      </a>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
@@ -17,12 +26,15 @@
 
   <div class="bg-white rounded-xl shadow p-8">
     <h2 class="text-xl font-bold text-gray-800 mb-6">Add Prescription</h2>
-    <form method="post" class="space-y-4">
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
       {% csrf_token %}
       {% for field in form %}
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
         {{ field }}
+        {% if field.name == 'attachment' %}
+        <p class="text-xs text-gray-400 mt-1">Optional. JPG, PNG, or PDF, up to 5MB — e.g. a photo of a handwritten prescription or lab result.</p>
+        {% endif %}
         {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
       </div>
       {% endfor %}

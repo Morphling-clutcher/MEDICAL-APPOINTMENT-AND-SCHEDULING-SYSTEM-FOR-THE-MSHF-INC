@@ -399,7 +399,7 @@ def add_prescription(request, pk):
     except ResultsConsultation.DoesNotExist:
         messages.error(request, 'Please add consultation results first.')
         return redirect('doctor:add_results', pk=pk)
-    form = PrescriptionForm(request.POST or None)
+    form = PrescriptionForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         prescription = form.save(commit=False)
         prescription.results_consultation = results
