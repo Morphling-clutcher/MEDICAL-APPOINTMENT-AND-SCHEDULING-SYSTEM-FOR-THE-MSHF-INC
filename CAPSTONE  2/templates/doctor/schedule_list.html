@@ -3,12 +3,12 @@
 
 {% block doctor_content %}
 <div class="max-w-3xl space-y-4">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <p class="text-gray-500 text-sm">Manage your weekly consultation schedule. Appointments will only be bookable during these hours.</p>
     <a hx-get="/doctor/schedule/add/" 
        hx-target="#modal-root" 
        hx-swap="innerHTML"
-       class="px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium hover:bg-emerald-800 transition cursor-pointer">
+       class="shrink-0 whitespace-nowrap text-center px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium hover:bg-emerald-800 transition cursor-pointer">
       + Add Slot
     </a>
   </div>

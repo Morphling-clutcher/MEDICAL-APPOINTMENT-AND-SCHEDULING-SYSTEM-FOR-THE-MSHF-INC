@@ -3,16 +3,16 @@
 
 {% block admin_content %}
 <div class="bg-white rounded-xl shadow p-6">
-  <div class="flex items-center justify-between mb-4">
-    <div class="flex gap-2">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+    <div class="flex gap-2 flex-wrap">
       <a href="?role=" class="px-3 py-1.5 rounded-full text-sm font-medium {% if not role_filter %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
       <a href="?role=patient" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'patient' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Patients</a>
       <a href="?role=doctor" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'doctor' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Doctors</a>
       <a href="?role=secretary" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'secretary' %}bg-rose-700 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Secretaries</a>
     </div>
     <div class="flex gap-2">
-      <a hx-get="/admin-panel/users/create/?role=doctor" hx-target="#modal-root" hx-swap="innerHTML" class="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition cursor-pointer">+ Doctor</a>
-      <a hx-get="/admin-panel/users/create/?role=secretary" hx-target="#modal-root" hx-swap="innerHTML" class="px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition cursor-pointer">+ Secretary</a>
+      <a hx-get="/admin-panel/users/create/?role=doctor" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 sm:flex-initial text-center px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition cursor-pointer">+ Doctor</a>
+      <a hx-get="/admin-panel/users/create/?role=secretary" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 sm:flex-initial text-center px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition cursor-pointer">+ Secretary</a>
     </div>
   </div>
 
