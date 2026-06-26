@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from datetime import date
+from django.db.models import Q
 from accounts.decorators import role_required
 from appointments.models import Appointment, Schedule
 from accounts.models import CustomUser, PatientProfile
@@ -28,6 +29,7 @@ def _build_secretary_dashboard_data(request):
     total_today = today_appts.count()
 
     return {
+        'userName': request.user.get_full_name() or request.user.username,
         'stats': [
             {'label': "Today's Appointments", 'value': total_today},
         ],
@@ -86,6 +88,29 @@ def appointment_detail(request, pk):
     appt = get_object_or_404(Appointment.objects.select_related('patient', 'doctor'), pk=pk, doctor=doctor)
     return render(request, 'secretary/_appointment_detail_modal.html', {
         'appt': appt, 'title': 'Appointment Details',
+    })
+
+
+@role_required('secretary')
+def appointment_approve(request, pk):
+    doctor = _assigned_doctor(request.user)
+    appt = get_object_or_404(Appointment, pk=pk, status='Scheduled', doctor=doctor)
+    if request.method == 'POST':
+        appt.secretary = request.user
+        appt.save()
+        _notify(appt.patient,
+                f"Your appointment with Dr. {appt.doctor.get_full_name()} on "
+                f"{appt.appointment_date.strftime('%B %d, %Y')} has been confirmed by the secretary.")
+        messages.success(request, 'Appointment approved.')
+        if request.htmx:
+            response = render(request, 'secretary/_appointment_action_modal.html', {'appointment': appt, 'action': 'approve'})
+            response['HX-Redirect'] = '/secretary/appointments/'
+            return response
+        return redirect('secretary:appointment_list')
+    if request.htmx:
+        return render(request, 'secretary/_appointment_action_modal.html', {'appointment': appt, 'action': 'approve'})
+    return render(request, 'secretary/appointment_confirm_action.html', {
+        'appointment': appt, 'action': 'approve'
     })
 
 
@@ -169,8 +194,8 @@ def secretary_patient_list(request):
     patients = CustomUser.objects.filter(role='patient')
     if search:
         patients = patients.filter(
-            first_name__icontains=search
-        ) | CustomUser.objects.filter(role='patient', last_name__icontains=search)
+            Q(first_name__icontains=search) | Q(last_name__icontains=search)
+        )
     return render(request, 'secretary/patient_list.html', {
         'patients': patients.distinct(), 'search': search
     })

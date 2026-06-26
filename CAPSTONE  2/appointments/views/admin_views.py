@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Q
 from django.http import JsonResponse
 from datetime import date, timedelta
 from accounts.decorators import role_required
@@ -36,6 +36,7 @@ def _build_admin_dashboard_data(request):
     ]
 
     return {
+        'userName': request.user.get_full_name() or request.user.username,
         'stats': [
             {'label': 'Patients', 'value': total_patients},
             {'label': 'Doctors', 'value': total_doctors},
@@ -86,9 +87,15 @@ def user_list(request):
     if role_filter:
         users = users.filter(role=role_filter)
     if search:
-        users = users.filter(first_name__icontains=search) | \
-                CustomUser.objects.exclude(role='admin').filter(last_name__icontains=search) | \
-                CustomUser.objects.exclude(role='admin').filter(username__icontains=search)
+        # Apply the search as an OR *within* the already role-filtered
+        # queryset (via Q objects), instead of rebuilding fresh querysets
+        # per field — the old version only re-applied exclude(role='admin')
+        # on the 2nd/3rd clauses, silently dropping any role_filter.
+        users = users.filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(username__icontains=search)
+        )
     return render(request, 'admin_panel/user_list.html', {
         'users': users.distinct().order_by('role', 'last_name'),
         'role_filter': role_filter, 'search': search,
