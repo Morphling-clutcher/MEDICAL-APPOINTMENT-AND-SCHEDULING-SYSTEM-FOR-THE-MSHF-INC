@@ -1,58 +1,58 @@
 {% extends "components/modal.html" %}
 {% block modal_content %}
 <div class="space-y-4">
-  <div class="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
-    <div class="flex justify-between"><span class="text-gray-500">Doctor</span><span class="font-medium">Dr. {{ appointment.doctor.get_full_name }}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Specialization</span><span class="font-medium">{{ appointment.doctor.doctor_profile.specialization|default:"General" }}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Date</span><span class="font-medium">{{ appointment.appointment_date|date:"F j, Y" }}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Time</span><span class="font-medium">{% if appointment.appointment_time %}{{ appointment.appointment_time|time:"g:i A" }}{% else %}<span class="text-amber-600">To be confirmed</span>{% endif %}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-medium">{{ appointment.status }}</span></div>
+  <div class="bg-[#F5F5F7] rounded-xl p-4 text-sm space-y-2">
+    <div class="flex justify-between"><span class="text-[#9a9aa5]">Doctor</span><span class="font-medium text-[#161622]">Dr. {{ appointment.doctor.get_full_name }}</span></div>
+    <div class="flex justify-between"><span class="text-[#9a9aa5]">Specialization</span><span class="font-medium text-[#161622]">{{ appointment.doctor.doctor_profile.specialization|default:"General" }}</span></div>
+    <div class="flex justify-between"><span class="text-[#9a9aa5]">Date</span><span class="font-medium text-[#161622]">{{ appointment.appointment_date|date:"F j, Y" }}</span></div>
+    <div class="flex justify-between"><span class="text-[#9a9aa5]">Time</span><span class="font-medium text-[#161622]">{% if appointment.appointment_time %}{{ appointment.appointment_time|time:"g:i A" }}{% else %}<span class="text-[#C8762B]">To be confirmed</span>{% endif %}</span></div>
+    <div class="flex justify-between"><span class="text-[#9a9aa5]">Status</span><span class="font-medium text-[#161622]">{{ appointment.status }}</span></div>
   </div>
   {% if appointment.status == 'Pending Reschedule' %}
-  <div class="rounded-xl border border-purple-100 bg-purple-50 p-4 space-y-3">
+  <div class="rounded-xl border border-[#E4DCF5] bg-[#F3EEFB] p-4 space-y-3">
     <div class="flex items-center gap-2">
       <span class="relative flex size-2">
-        <span class="absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75 animate-ping"></span>
-        <span class="relative inline-flex rounded-full size-2 bg-purple-500"></span>
+        <span class="absolute inline-flex h-full w-full rounded-full bg-[#6750A4] opacity-75 animate-ping"></span>
+        <span class="relative inline-flex rounded-full size-2 bg-[#6750A4]"></span>
       </span>
-      <p class="font-semibold text-purple-900 text-sm">Reschedule requested — awaiting approval</p>
+      <p class="font-semibold text-[#473570] text-sm">Reschedule requested — awaiting approval</p>
     </div>
     <div class="flex items-center gap-3">
       <div class="flex-1 rounded-lg bg-white/70 px-3 py-2 text-center">
-        <p class="text-[10px] text-gray-400 uppercase tracking-wide font-semibold">Current</p>
-        <p class="text-sm font-medium text-gray-400 line-through">{{ appointment.appointment_date|date:"M j, Y" }}</p>
-        {% if appointment.appointment_time %}<p class="text-xs text-gray-400 line-through">{{ appointment.appointment_time|time:"g:i A" }}</p>{% endif %}
+        <p class="text-[10px] text-[#b0b0bc] uppercase tracking-wide font-semibold">Current</p>
+        <p class="text-sm font-medium text-[#b0b0bc] line-through">{{ appointment.appointment_date|date:"M j, Y" }}</p>
+        {% if appointment.appointment_time %}<p class="text-xs text-[#b0b0bc] line-through">{{ appointment.appointment_time|time:"g:i A" }}</p>{% endif %}
       </div>
-      <svg class="w-5 h-5 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      <svg class="w-5 h-5 text-[#6750A4] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
       <div class="flex-1 rounded-lg bg-white px-3 py-2 text-center shadow-sm">
-        <p class="text-[10px] text-purple-400 uppercase tracking-wide font-semibold">Requested</p>
-        <p class="text-sm font-bold text-purple-900">{{ appointment.requested_date|date:"M j, Y" }}</p>
+        <p class="text-[10px] text-[#6750A4] uppercase tracking-wide font-semibold">Requested</p>
+        <p class="text-sm font-bold text-[#473570]">{{ appointment.requested_date|date:"M j, Y" }}</p>
       </div>
     </div>
   </div>
   {% endif %}
   <div>
-    <p class="text-sm font-semibold text-gray-700 mb-1">Reason for Visit</p>
-    <p class="text-sm text-gray-600">{{ appointment.reason|default:"—" }}</p>
+    <p class="text-sm font-semibold text-[#161622] mb-1">Reason for Visit</p>
+    <p class="text-sm text-[#5a5a66]">{{ appointment.reason|default:"—" }}</p>
   </div>
   {% if appointment.status == 'Completed' %}
   <div>
-    <p class="text-sm font-semibold text-gray-700 mb-1">Result</p>
+    <p class="text-sm font-semibold text-[#161622] mb-1">Result</p>
     {% if appointment.results.diagnosis %}
-    <p class="text-sm text-gray-600">{{ appointment.results.diagnosis }}</p>
+    <p class="text-sm text-[#5a5a66]">{{ appointment.results.diagnosis }}</p>
     {% else %}
-    <p class="text-sm text-gray-400 italic">Pending</p>
+    <p class="text-sm text-[#b0b0bc] italic">Pending</p>
     {% endif %}
   </div>
   {% endif %}
   <div class="flex gap-3 pt-2">
     {% if medical_record %}
     <a hx-get="{% url 'patient:medical_record_detail' pk=medical_record.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
-       class="flex-1 text-center bg-blue-700 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition cursor-pointer">
+       class="flex-1 text-center bg-[#161622] text-white font-medium py-3 rounded-xl text-sm hover:bg-[#22222f] transition cursor-pointer">
       View Medical Record
     </a>
     {% endif %}
-    <button type="button" onclick="closeModal()" class="flex-1 border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">
+    <button type="button" onclick="closeModal()" class="flex-1 bg-[#F5F5F7] text-[#161622] font-medium py-3 rounded-xl text-sm hover:bg-[#ebebee] transition">
       Close
     </button>
   </div>

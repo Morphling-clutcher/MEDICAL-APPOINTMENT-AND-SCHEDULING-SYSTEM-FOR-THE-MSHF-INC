@@ -4,7 +4,10 @@
 
 {% block patient_content %}
 <div class="max-w-4xl">
-  {% include "patient/_booking_progress.html" with current=1 %}
+  <a href="/patient/" class="inline-flex items-center gap-1.5 text-sm text-[#9a9aa5] hover:text-[#161622] mb-4">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Back
+  </a>
 
   <div class="bg-white rounded-2xl shadow-sm p-6">
     <h2 class="text-lg font-bold text-[#161622] mb-4">All Doctors</h2>

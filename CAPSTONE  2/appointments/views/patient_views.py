@@ -97,8 +97,8 @@ def _build_patient_dashboard_data(request):
     ).select_related('doctor')[:5]
     past = Appointment.objects.filter(
         patient=request.user,
-        status__in=['Completed', 'Cancelled']
-    ).select_related('doctor', 'results')[:5]
+        status='Completed'
+    ).select_related('doctor', 'results').order_by('-appointment_date')[:5]
 
     doctors_qs = CustomUser.objects.filter(role='doctor').select_related('doctor_profile')[:8]
     specializations = sorted({
@@ -142,10 +142,10 @@ def _build_patient_dashboard_data(request):
         ],
         'stats': [
             {'label': 'Upcoming Appointments', 'value': upcoming.count()},
-            {'label': 'Past Appointments', 'value': past.count()},
+            {'label': 'Completed Appointments', 'value': past.count()},
         ],
         'appointmentsTitle': 'Upcoming Appointments',
-        'appointmentsHref': '/patient/appointments/#upcoming-appointments',
+        'appointmentsHref': '/patient/appointments/?tab=upcoming',
         'appointments': [
             {
                 'primary': f'Dr. {a.doctor.get_full_name()}',
@@ -156,8 +156,8 @@ def _build_patient_dashboard_data(request):
             }
             for a in upcoming
         ],
-        'pastAppointmentsTitle': 'Recent Past Appointments',
-        'pastAppointmentsHref': '/patient/appointments/#past-appointments',
+        'pastAppointmentsTitle': 'Recent Completed Appointments',
+        'pastAppointmentsHref': '/patient/appointments/?tab=completed',
         'pastAppointments': [
             {
                 'primary': f'Dr. {a.doctor.get_full_name()}',
@@ -208,18 +208,25 @@ def patient_dashboard_data(request):
 def appointment_list(request):
     upcoming = Appointment.objects.filter(
         patient=request.user,
-        appointment_date__gte=date.today()
-    ).exclude(status='Cancelled').select_related('doctor').order_by('appointment_date', 'appointment_time')
-    past = Appointment.objects.filter(
+        status__in=['Pending Time Assignment', 'Scheduled', 'Rescheduled', 'Pending Reschedule']
+    ).select_related('doctor').order_by('appointment_date', 'appointment_time')
+    completed = Appointment.objects.filter(
         patient=request.user,
-        appointment_date__lt=date.today()
+        status='Completed'
     ).select_related('doctor', 'results').order_by('-appointment_date')
     cancelled = Appointment.objects.filter(
         patient=request.user,
         status='Cancelled'
     ).select_related('doctor').order_by('-appointment_date')
+    completed_appointment_ids = set(completed.values_list('pk', flat=True))
+    reviewed_appointment_ids = set(
+        Feedback.objects.filter(
+            patient=request.user, appointment_id__in=completed_appointment_ids
+        ).values_list('appointment_id', flat=True)
+    )
     return render(request, 'patient/appointment_list.html', {
-        'upcoming': upcoming, 'past': past, 'cancelled': cancelled
+        'upcoming': upcoming, 'completed': completed, 'cancelled': cancelled,
+        'reviewed_appointment_ids': reviewed_appointment_ids,
     })
 
 
