@@ -233,8 +233,6 @@ def appointment_list(request):
 @role_required('patient')
 def book_step1(request):
     doctors = CustomUser.objects.filter(role='doctor').select_related('doctor_profile').annotate(
-        avg_rating=models.Avg('doctor_appointments__feedback__rating'),
-        review_count=models.Count('doctor_appointments__feedback', distinct=True),
         patient_count=models.Count('doctor_appointments__patient', distinct=True),
     )
     query = request.GET.get('q', '').strip()
@@ -262,8 +260,6 @@ def book_step1(request):
 def doctor_profile_view(request, doctor_id):
     doctor = get_object_or_404(
         CustomUser.objects.annotate(
-            avg_rating=models.Avg('doctor_appointments__feedback__rating'),
-            review_count=models.Count('doctor_appointments__feedback', distinct=True),
             patient_count=models.Count('doctor_appointments__patient', distinct=True),
         ),
         pk=doctor_id, role='doctor'
@@ -271,10 +267,9 @@ def doctor_profile_view(request, doctor_id):
     schedules = Schedule.objects.filter(
         doctor=doctor, specific_date__gte=date.today()
     ).order_by('specific_date', 'start_time')
-    reviews = Feedback.objects.filter(
-        appointment__doctor=doctor
-    ).exclude(comment='').select_related('patient').order_by('-date_submitted')[:5]
-    context = {'doctor': doctor, 'schedules': schedules, 'reviews': reviews, 'title': 'Doctor Profile'}
+    # Feedback (ratings/reviews) is intentionally not shown here — patients
+    # and doctors don't see it; only admin does, via the admin feedback list.
+    context = {'doctor': doctor, 'schedules': schedules, 'title': 'Doctor Profile'}
     if request.htmx:
         return render(request, 'patient/_doctor_profile_modal.html', context)
     return render(request, 'patient/doctor_profile.html', context)

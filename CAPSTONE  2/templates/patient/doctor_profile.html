@@ -29,7 +29,8 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-4 gap-2 mb-4">
+  <!-- Stat badges (rating/reviews intentionally omitted — feedback is admin-only) -->
+  <div class="grid grid-cols-2 gap-2 mb-4 max-w-sm">
     <div class="bg-white rounded-2xl shadow-sm p-3 text-center">
       <div class="size-9 mx-auto mb-1.5 rounded-full bg-[#F5F5F7] flex items-center justify-center">
         <svg class="w-4 h-4 text-[#161622]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 110-8 4 4 0 010 8zm-6 1a4 4 0 100-8 4 4 0 000 8z"/></svg>
@@ -44,20 +45,6 @@
       <p class="font-bold text-sm text-[#161622]">{{ doctor.doctor_profile.years_of_experience|default:"—" }}{% if doctor.doctor_profile.years_of_experience %}+{% endif %}</p>
       <p class="text-[10px] text-[#9a9aa5]">experience</p>
     </div>
-    <div class="bg-white rounded-2xl shadow-sm p-3 text-center">
-      <div class="size-9 mx-auto mb-1.5 rounded-full bg-[#F5F5F7] flex items-center justify-center">
-        <svg class="w-4 h-4 text-[#E0A93C]" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.8L10 14.9l-5.21 2.52 1-5.8-4.21-4.1 5.82-.85L10 1.5z"/></svg>
-      </div>
-      <p class="font-bold text-sm text-[#161622]">{{ doctor.avg_rating|floatformat:1|default:"—" }}</p>
-      <p class="text-[10px] text-[#9a9aa5]">rating</p>
-    </div>
-    <div class="bg-white rounded-2xl shadow-sm p-3 text-center">
-      <div class="size-9 mx-auto mb-1.5 rounded-full bg-[#F5F5F7] flex items-center justify-center">
-        <svg class="w-4 h-4 text-[#161622]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-      </div>
-      <p class="font-bold text-sm text-[#161622]">{{ doctor.review_count }}</p>
-      <p class="text-[10px] text-[#9a9aa5]">reviews</p>
-    </div>
   </div>
 
   {% if doctor.doctor_profile.bio %}
@@ -67,7 +54,7 @@
   </div>
   {% endif %}
 
-  <div class="bg-white rounded-2xl shadow-sm p-6 mb-4">
+  <div class="bg-white rounded-2xl shadow-sm p-6 mb-24 md:mb-6">
     {% if schedules %}
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full text-sm">
@@ -95,39 +82,6 @@
     </div>
     {% else %}
     <p class="text-[#9a9aa5] text-center py-10">This doctor has no availability set yet.</p>
-    {% endif %}
-  </div>
-
-  <div class="bg-white rounded-2xl shadow-sm p-6 mb-24 md:mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="font-semibold text-[#161622]">Reviews</h2>
-      {% if reviews %}<span class="text-sm text-[#4382DF]">{{ doctor.review_count }} total</span>{% endif %}
-    </div>
-    {% if reviews %}
-    <div class="space-y-4">
-      {% for review in reviews %}
-      <div class="flex items-start gap-3">
-        {% if review.patient.profile_picture %}
-          <img src="{{ review.patient.profile_picture.url }}" class="size-9 rounded-full object-cover shrink-0" alt="">
-        {% else %}
-          <img src="{% static 'img/default-avatar.svg' %}" class="size-9 rounded-full object-cover shrink-0" alt="">
-        {% endif %}
-        <div class="flex-1">
-          <div class="flex items-center justify-between">
-            <p class="text-sm font-semibold text-[#161622]">{{ review.patient.first_name }} {{ review.patient.last_name|first }}.</p>
-            <div class="flex items-center gap-0.5">
-              {% for i in "12345" %}
-              <svg class="w-3 h-3 {% if forloop.counter <= review.rating %}text-[#E0A93C]{% else %}text-[#e5e5ea]{% endif %}" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.8L10 14.9l-5.21 2.52 1-5.8-4.21-4.1 5.82-.85L10 1.5z"/></svg>
-              {% endfor %}
-            </div>
-          </div>
-          <p class="text-sm text-[#5a5a66] mt-0.5">{{ review.comment }}</p>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="text-[#9a9aa5] text-center py-6 text-sm">No reviews yet.</p>
     {% endif %}
   </div>
 
