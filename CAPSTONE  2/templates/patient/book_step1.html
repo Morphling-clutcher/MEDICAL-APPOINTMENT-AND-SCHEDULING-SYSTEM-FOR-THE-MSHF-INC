@@ -5,31 +5,32 @@
 {% block patient_content %}
 <div class="max-w-4xl">
   <div>
-    <h2 class="text-lg font-bold text-[#161622] text-center mb-4">All Doctors</h2>
+    <h2 class="text-base font-bold text-[#161622] text-center mb-3">All Doctors</h2>
 
-    <form method="get" class="flex items-center gap-2.5 bg-[#F5F5F7] rounded-xl px-4 py-3 mb-4">
+    <form method="get" class="flex items-center gap-2.5 bg-[#F5F5F7] rounded-full px-4 py-3 mb-3">
       <svg class="w-4 h-4 text-[#9a9aa5] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
       <input type="text" name="q" value="{{ query }}" placeholder="Search doctor..."
-             class="flex-1 bg-transparent border-0 p-0 text-sm text-[#161622] placeholder-[#9a9aa5] focus:outline-none focus:ring-0">
+             class="flex-1 text-sm text-[#161622] placeholder-[#9a9aa5]"
+             style="background:transparent; border:none; border-radius:0; padding:0; width:auto; box-shadow:none; outline:none;">
       {% if selected_specialty %}<input type="hidden" name="specialty" value="{{ selected_specialty }}">{% endif %}
-      <button type="submit" class="text-sm font-medium text-[#161622]">Search</button>
+      <button type="submit" class="sr-only">Search</button>
     </form>
 
-    <div class="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
+    <div class="flex items-center gap-2 mb-3 overflow-x-auto pb-1">
       <a href="{% url 'patient:book_step1' %}{% if query %}?q={{ query }}{% endif %}"
-         class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition {% if not selected_specialty %}bg-[#161622] text-white{% else %}bg-[#F5F5F7] text-[#161622] hover:bg-[#ebebee]{% endif %}">
+         class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition {% if not selected_specialty %}bg-[#161622] text-white{% else %}bg-white text-[#161622] border border-[#e5e5ea] hover:bg-[#F5F5F7]{% endif %}">
         All
       </a>
       {% for spec in specializations %}
       <a href="?specialty={{ spec }}{% if query %}&q={{ query }}{% endif %}"
-         class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition {% if selected_specialty == spec %}bg-[#161622] text-white{% else %}bg-[#F5F5F7] text-[#161622] hover:bg-[#ebebee]{% endif %}">
+         class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition {% if selected_specialty == spec %}bg-[#161622] text-white{% else %}bg-white text-[#161622] border border-[#e5e5ea] hover:bg-[#F5F5F7]{% endif %}">
         {{ spec }}
       </a>
       {% endfor %}
     </div>
 
-    <div class="flex items-center justify-between mb-4">
-      <p class="text-sm text-[#9a9aa5]">{{ doctors|length }} found</p>
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs text-[#9a9aa5]">{{ doctors|length }} found</p>
     </div>
 
     {% if doctors %}
