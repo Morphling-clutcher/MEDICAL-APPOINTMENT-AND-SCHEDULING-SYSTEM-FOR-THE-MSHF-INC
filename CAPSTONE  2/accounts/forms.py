@@ -161,7 +161,10 @@ class PatientProfileEditForm(forms.ModelForm):
 class DoctorProfileEditForm(forms.ModelForm):
     class Meta:
         model  = DoctorProfile
-        fields = ['specialization', 'years_of_experience', 'license_number']
+        fields = ['specialization', 'years_of_experience', 'license_number', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'A short professional bio visible to patients on your doctor profile...'}),
+        }
 
 
 class SecretaryProfileEditForm(forms.ModelForm):

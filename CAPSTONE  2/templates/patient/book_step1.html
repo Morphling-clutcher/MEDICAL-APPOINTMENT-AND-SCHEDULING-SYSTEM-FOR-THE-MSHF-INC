@@ -40,7 +40,8 @@
     {% if doctors %}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       {% for doctor in doctors %}
-      <div class="flex items-start gap-4 p-4 rounded-2xl border border-[#ECECEF] hover:border-[#161622]/20 hover:bg-[#F5F5F7]/60 transition group">
+      <div class="flex items-start gap-4 p-4 rounded-2xl border border-[#ECECEF] hover:border-[#161622]/20 hover:bg-[#F5F5F7]/60 transition group cursor-pointer"
+           hx-get="{% url 'patient:doctor_profile' doctor_id=doctor.pk %}" hx-target="#modal-root" hx-swap="innerHTML">
         {% if doctor.profile_picture %}
           <img src="{{ doctor.profile_picture.url }}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" alt="">
         {% else %}
@@ -66,11 +67,7 @@
           {% else %}
           <p class="text-xs text-[#b0b0bc]">No reviews yet</p>
           {% endif %}
-          <div class="flex items-center gap-2 mt-3">
-            <a hx-get="{% url 'patient:doctor_profile' doctor_id=doctor.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
-               class="px-3 py-1.5 text-xs font-medium text-[#161622] border border-[#e5e5ea] rounded-lg hover:bg-[#F5F5F7] transition cursor-pointer">
-              View Profile
-            </a>
+          <div class="flex items-center gap-2 mt-3" onclick="event.stopPropagation()">
             <a hx-get="{% url 'patient:book_step2' doctor_id=doctor.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
                class="px-3 py-1.5 text-xs font-medium bg-[#161622] text-white rounded-lg hover:bg-[#22222f] transition cursor-pointer">
               Book

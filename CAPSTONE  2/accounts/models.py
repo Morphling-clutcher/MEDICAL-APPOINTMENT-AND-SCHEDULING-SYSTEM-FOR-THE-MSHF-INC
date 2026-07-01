@@ -63,6 +63,7 @@ class DoctorProfile(models.Model):
     specialization      = models.CharField(max_length=150, blank=True)
     years_of_experience = models.PositiveIntegerField(null=True, blank=True)
     license_number      = models.CharField(max_length=100, blank=True)
+    bio                 = models.TextField(blank=True, help_text="Short professional bio shown on your public doctor profile.")
 
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} — {self.specialization}"
