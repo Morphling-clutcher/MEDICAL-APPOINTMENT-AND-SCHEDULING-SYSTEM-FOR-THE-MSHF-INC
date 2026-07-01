@@ -707,6 +707,11 @@ def cancel_appointment(request, pk):
             send_cancellation_email(appointment)
         except Exception:
             pass
+        _notify_assigned_secretaries_and_doctor(
+            appointment.doctor,
+            f"{appointment.patient.get_full_name()} cancelled their appointment on "
+            f"{appointment.appointment_date.strftime('%B %d, %Y')}."
+        )
         _notify(request.user,
                 f"Your appointment with Dr. {appointment.doctor.get_full_name()} on "
                 f"{appointment.appointment_date.strftime('%B %d, %Y')} has been cancelled.")
