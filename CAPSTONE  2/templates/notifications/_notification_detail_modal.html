@@ -1,19 +1,58 @@
 {% extends "components/modal.html" %}
 {% block modal_content %}
-<div class="space-y-4">
-  <p class="text-gray-700 text-sm">{{ notification.message }}</p>
-  <p class="text-gray-400 text-xs">{{ notification.created_at|date:"F j, Y g:i A" }}</p>
-  <div class="flex gap-3 pt-2">
-    <form method="post" action="{% url 'notifications:mark_read' pk=notification.pk %}" class="flex-1">
+<div class="space-y-5">
+
+  {# Icon + message area #}
+  {% with msg=notification.message|lower %}
+  <div class="flex items-start gap-4">
+    {% if "cancel" in msg %}
+    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+      <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+      </svg>
+    </div>
+    {% elif "reschedule" in msg or "schedule" in msg or "changed" in msg %}
+    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+      <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l2 2" />
+      </svg>
+    </div>
+    {% else %}
+    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+      <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
+      </svg>
+    </div>
+    {% endif %}
+    <div>
+      <p class="text-slate-800 text-sm font-medium leading-relaxed">{{ notification.message }}</p>
+      <p class="text-slate-400 text-xs mt-1">{{ notification.created_at|date:"F j, Y · g:i A" }}</p>
+    </div>
+  </div>
+  {% endwith %}
+
+  {# Action buttons #}
+  <div class="flex gap-3 pt-1">
+    <form method="post" action="{% url 'notifications:mark_read' pk=notification.pk %}" class="flex-1"
+      hx-post="{% url 'notifications:mark_read' pk=notification.pk %}" hx-target="#modal-root" hx-swap="innerHTML">
       {% csrf_token %}
-      <button type="submit" class="w-full bg-blue-700 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition">
-        Okay
+      <button type="submit"
+        class="w-full bg-brand-500 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition-colors text-sm">
+        Got it
       </button>
     </form>
-    <form method="post" action="{% url 'notifications:dismiss' pk=notification.pk %}" class="flex-1">
+    <form method="post" action="{% url 'notifications:dismiss' pk=notification.pk %}" class="flex-1"
+      hx-post="{% url 'notifications:dismiss' pk=notification.pk %}" hx-target="#modal-root" hx-swap="innerHTML">
       {% csrf_token %}
-      <button type="submit" class="w-full border border-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-50 transition">
-        Clear
+      <button type="submit"
+        class="w-full border border-slate-200 text-slate-600 font-semibold py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+        Dismiss
       </button>
     </form>
   </div>

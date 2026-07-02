@@ -1,18 +1,42 @@
-{# Top-right avatar dropdown — shared across all 4 role base templates. Independent of the modal system. #}
+{# Top-right header bar — notification bell + avatar dropdown — shared across all 4 role base templates. Independent of the modal system. #}
 {% load static %}
-<div class="relative" id="user-menu">
-  <button type="button" onclick="toggleDropdown('user-menu-dropdown')" class="flex items-center gap-3 cursor-pointer">
-    {% if request.user.profile_picture %}
-      <img src="{{ request.user.profile_picture.url }}" class="size-9 rounded-full object-cover" alt="">
-    {% else %}
-      <img src="{% static 'img/default-avatar.svg' %}" class="size-9 rounded-full object-cover" alt="">
+<div class="flex items-center gap-2">
+
+  {# ── Notification Bell (desktop) ── #}
+  <button type="button"
+          id="notif-bell-desktop"
+          aria-label="Notifications"
+          hx-get="{% url 'notifications:panel' %}"
+          hx-target="#modal-root"
+          hx-swap="innerHTML"
+          class="relative flex size-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+    </svg>
+    {% if unread_notification_count > 0 %}
+    <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+      {{ unread_notification_count }}
+    </span>
     {% endif %}
-    <div class="text-sm leading-tight text-left">
-      <p class="font-medium text-slate-800">{% if request.user.role == 'doctor' %}Dr. {% endif %}{{ request.user.get_full_name|default:request.user.username }}</p>
-      <p class="text-slate-400 text-xs capitalize">{{ request.user.role }}</p>
-    </div>
   </button>
-  <div id="user-menu-dropdown" data-dropdown-menu data-trigger="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-    {% include "components/_account_popover_menu.html" %}
+
+  {# ── Avatar Dropdown ── #}
+  <div class="relative" id="user-menu">
+    <button type="button" onclick="toggleDropdown('user-menu-dropdown')" class="flex items-center gap-3 cursor-pointer">
+      {% if request.user.profile_picture %}
+        <img src="{{ request.user.profile_picture.url }}" class="size-9 rounded-full object-cover" alt="">
+      {% else %}
+        <img src="{% static 'img/default-avatar.svg' %}" class="size-9 rounded-full object-cover" alt="">
+      {% endif %}
+      <div class="text-sm leading-tight text-left">
+        <p class="font-medium text-slate-800">{% if request.user.role == 'doctor' %}Dr. {% endif %}{{ request.user.get_full_name|default:request.user.username }}</p>
+        <p class="text-slate-400 text-xs capitalize">{{ request.user.role }}</p>
+      </div>
+    </button>
+    <div id="user-menu-dropdown" data-dropdown-menu data-trigger="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+      {% include "components/_account_popover_menu.html" %}
+    </div>
   </div>
+
 </div>

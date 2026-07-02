@@ -1,0 +1,137 @@
+{# Notification Panel Modal — extends the shared modal shell. #}
+{# Triggered via HTMX into #modal-root; auto-opened by the htmx:afterSettle handler in base.html. #}
+{% extends "components/modal.html" %}
+{% block modal_content %}
+<div id="notif-panel-body">
+
+  {# ── Header actions ── #}
+  <div class="flex items-center justify-between mb-1 -mt-2">
+    <div class="flex items-center gap-2">
+      {% if unread_notification_count > 0 %}
+      <span class="inline-flex items-center justify-center rounded-full bg-brand-500 text-white text-xs font-bold px-2 py-0.5 leading-none">
+        {{ unread_notification_count }} New
+      </span>
+      {% endif %}
+    </div>
+    <form method="post" action="{% url 'notifications:mark_all_read' %}"
+          hx-post="{% url 'notifications:mark_all_read' %}"
+          hx-target="#modal-root"
+          hx-swap="innerHTML">
+      {% csrf_token %}
+      <button type="submit"
+              class="text-xs font-semibold text-brand-500 hover:text-brand-700 transition-colors">
+        Mark all as read
+      </button>
+    </form>
+  </div>
+
+  {% if notification_groups %}
+  <div class="space-y-5 mt-4">
+    {% for group in notification_groups %}
+    <div>
+      {# ── Date group label ── #}
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-[11px] font-bold text-slate-400 tracking-widest uppercase">{{ group.label }}</p>
+      </div>
+
+      {# ── Notification items ── #}
+      <div class="space-y-1">
+        {% for notif in group.items %}
+        {% with msg=notif.message|lower %}
+        {# Determine icon type and color from message keywords #}
+        {% if "cancel" in msg %}
+          {% with icon_bg="bg-red-100" icon_color="text-red-500" dot_color="bg-red-400" %}
+          <div class="flex items-start gap-3 px-3 py-3 rounded-xl cursor-pointer transition-colors
+                      {% if not notif.is_read %}bg-brand-50 border border-brand-200/60{% else %}hover:bg-slate-50{% endif %}"
+               hx-get="{% url 'notifications:detail' pk=notif.pk %}"
+               hx-target="#modal-root"
+               hx-swap="innerHTML">
+            {# Calendar icon badge - red for cancelled #}
+            <div class="flex-shrink-0 w-10 h-10 rounded-full {{ icon_bg }} flex items-center justify-center">
+              <svg class="w-5 h-5 {{ icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-slate-800 leading-snug">
+                Appointment Cancelled
+                {% if not notif.is_read %}<span class="ml-1 inline-block w-1.5 h-1.5 rounded-full {{ dot_color }} align-middle"></span>{% endif %}
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5 leading-snug">{{ notif.message }}</p>
+            </div>
+            <p class="text-[11px] text-slate-400 flex-shrink-0 mt-0.5">{{ notif.created_at|timesince }}</p>
+          </div>
+          {% endwith %}
+        {% elif "reschedule" in msg or "schedule" in msg or "changed" in msg %}
+          {% with icon_bg="bg-amber-100" icon_color="text-amber-500" dot_color="bg-amber-400" %}
+          <div class="flex items-start gap-3 px-3 py-3 rounded-xl cursor-pointer transition-colors
+                      {% if not notif.is_read %}bg-brand-50 border border-brand-200/60{% else %}hover:bg-slate-50{% endif %}"
+               hx-get="{% url 'notifications:detail' pk=notif.pk %}"
+               hx-target="#modal-root"
+               hx-swap="innerHTML">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full {{ icon_bg }} flex items-center justify-center">
+              <svg class="w-5 h-5 {{ icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l2 2"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-slate-800 leading-snug">
+                Schedule Changed
+                {% if not notif.is_read %}<span class="ml-1 inline-block w-1.5 h-1.5 rounded-full {{ dot_color }} align-middle"></span>{% endif %}
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5 leading-snug">{{ notif.message }}</p>
+            </div>
+            <p class="text-[11px] text-slate-400 flex-shrink-0 mt-0.5">{{ notif.created_at|timesince }}</p>
+          </div>
+          {% endwith %}
+        {% else %}
+          {% with icon_bg="bg-green-100" icon_color="text-green-600" dot_color="bg-green-500" %}
+          <div class="flex items-start gap-3 px-3 py-3 rounded-xl cursor-pointer transition-colors
+                      {% if not notif.is_read %}bg-brand-50 border border-brand-200/60{% else %}hover:bg-slate-50{% endif %}"
+               hx-get="{% url 'notifications:detail' pk=notif.pk %}"
+               hx-target="#modal-root"
+               hx-swap="innerHTML">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full {{ icon_bg }} flex items-center justify-center">
+              <svg class="w-5 h-5 {{ icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-slate-800 leading-snug">
+                Appointment Success
+                {% if not notif.is_read %}<span class="ml-1 inline-block w-1.5 h-1.5 rounded-full {{ dot_color }} align-middle"></span>{% endif %}
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5 leading-snug">{{ notif.message }}</p>
+            </div>
+            <p class="text-[11px] text-slate-400 flex-shrink-0 mt-0.5">{{ notif.created_at|timesince }}</p>
+          </div>
+          {% endwith %}
+        {% endif %}
+        {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="flex flex-col items-center justify-center py-14 text-center">
+    <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+      <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+    </div>
+    <p class="text-base font-semibold text-slate-700">You're all caught up!</p>
+    <p class="text-sm text-slate-400 mt-1">No notifications right now.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
