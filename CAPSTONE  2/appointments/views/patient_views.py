@@ -161,9 +161,7 @@ def _build_patient_dashboard_data(request):
         'pastAppointments': [
             {
                 'primary': f'Dr. {a.doctor.get_full_name()}',
-                'secondary': (
-                    (a.results.diagnosis if hasattr(a, 'results') else '') if a.status == 'Completed' else ''
-                ) or ('Pending' if a.status == 'Completed' else ''),
+                'secondary': 'Completed' if a.status == 'Completed' else '',
                 'date': a.appointment_date.isoformat(),
                 'status': a.status,
             }
@@ -723,11 +721,12 @@ def cancel_appointment(request, pk):
 
 @role_required('patient')
 def medical_records(request):
-    from records.models import MedicalRecords
+    from records.models import MedicalRecords, VitalSign
     records = MedicalRecords.objects.filter(
         patient=request.user
     ).select_related('doctor', 'results').order_by('-visit_date')
-    return render(request, 'patient/medical_records.html', {'records': records})
+    vitals = VitalSign.objects.filter(patient=request.user).order_by('-date_taken')
+    return render(request, 'patient/medical_records.html', {'records': records, 'vitals': vitals})
 
 
 @role_required('patient')
