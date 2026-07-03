@@ -23,8 +23,8 @@ const ICONS = {
 // fully-written-out lookup by a short "theme" key, rather than letting the
 // backend send a raw Tailwind class string that would never get compiled.
 const THEMES: Record<CarouselSlide["theme"], string> = {
-	navy: "bg-gradient-to-br from-[#34536A] via-[#416581] to-[#4D7493]",
-	teal: "bg-gradient-to-br from-[#276F92] via-[#2E8AB5] to-[#3FA8D6]",
+	navy: "bg-gradient-to-br from-[#17758B] via-[#1D8FA8] to-[#2AAFC4]",
+	teal: "bg-gradient-to-br from-[#1F7A93] via-[#2697B3] to-[#3FB8D3]",
 	violet: "bg-gradient-to-br from-[#524699] via-[#5E51A8] to-[#6B5FB8]",
 };
 

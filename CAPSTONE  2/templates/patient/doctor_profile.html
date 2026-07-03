@@ -9,93 +9,84 @@
     Back to doctor list
   </a>
 
-  <div class="bg-white rounded-2xl shadow-soft-sm p-6 mb-4">
-    <div class="flex items-center gap-4">
-      {% if doctor.profile_picture %}
-        <img src="{{ doctor.profile_picture.url }}" class="size-16 rounded-2xl object-cover" alt="">
-      {% else %}
-        <div class="size-16 rounded-2xl bg-[#E6EEF3] flex items-center justify-center">
-          <span class="text-[#4D7493] font-semibold text-xl">{{ doctor.first_name.0 }}{{ doctor.last_name.0 }}</span>
-        </div>
-      {% endif %}
-      <div>
-        <p class="font-semibold text-[#1F2937] text-lg">Dr. {{ doctor.get_full_name }}</p>
-        <p class="text-sm text-[#6B7280]">{{ doctor.doctor_profile.specialization|default:"General Medicine" }}</p>
-        <p class="text-xs text-[#9CA3AF] flex items-center gap-1 mt-0.5">
-          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3" stroke-width="2"/></svg>
-          MSHFI Medical Appointment System
-        </p>
+  <!-- Header card: aqua banner + photo + name -->
+  <div class="bg-white rounded-3xl shadow-soft-sm overflow-hidden mb-4">
+    <div class="relative h-24 bg-gradient-to-r from-[#DCF4F8] to-[#B9E8F0]">
+      <span class="absolute top-4 right-4 text-[#9CA3AF]" aria-hidden="true">{# decorative #}
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </span>
+    </div>
+    <div class="px-6 pb-6">
+      <div class="flex items-end gap-4 -mt-10 mb-4">
+        {% if doctor.profile_picture %}
+          <img src="{{ doctor.profile_picture.url }}" class="size-20 rounded-2xl object-cover ring-4 ring-white shadow-soft-sm" alt="">
+        {% else %}
+          <div class="size-20 rounded-2xl bg-[#DCF4F8] ring-4 ring-white shadow-soft-sm flex items-center justify-center">
+            <span class="text-[#2AAFC4] font-semibold text-2xl">{{ doctor.first_name.0 }}{{ doctor.last_name.0 }}</span>
+          </div>
+        {% endif %}
+      </div>
+      <p class="font-semibold text-[#1F2937] text-xl">Dr. {{ doctor.get_full_name }}</p>
+      <p class="text-sm font-medium text-[#1D8FA8] mb-3">{{ doctor.doctor_profile.specialization|default:"General Medicine" }}</p>
+      <div class="flex items-center gap-3 text-sm">
+        {# decorative rating — display only #}
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.286 3.958c.3.922-.755 1.688-1.539 1.118l-3.367-2.446a1 1 0 00-1.175 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.285-3.958a1 1 0 00-.362-1.118L2.063 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z"/></svg>
+          <b class="font-semibold text-[#1F2937]">4.9</b>
+        </span>
+        <span class="h-4 w-px bg-[#E5E7EB]"></span>
+        <span class="text-[#4B5563]">{{ doctor.doctor_profile.years_of_experience|default:"—" }}{% if doctor.doctor_profile.years_of_experience %}+ Years Experience{% else %} Experience{% endif %}</span>
+        <span class="h-4 w-px bg-[#E5E7EB]"></span>
+        <span class="text-[#4B5563]">{{ doctor.patient_count }}{% if doctor.patient_count >= 50 %}+{% endif %} patients</span>
       </div>
     </div>
   </div>
 
-  <!-- Stat badges (rating/reviews intentionally omitted — feedback is admin-only) -->
-  <div class="grid grid-cols-2 gap-2 mb-4 max-w-sm">
-    <div class="bg-white rounded-2xl shadow-soft-sm p-3 text-center">
-      <div class="size-9 mx-auto mb-1.5 rounded-full bg-[#F5F7FA] flex items-center justify-center">
-        <svg class="w-4 h-4 text-[#1F2937]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 110-8 4 4 0 010 8zm-6 1a4 4 0 100-8 4 4 0 000 8z"/></svg>
-      </div>
-      <p class="font-semibold text-sm text-[#1F2937]">{{ doctor.patient_count }}{% if doctor.patient_count >= 50 %}+{% endif %}</p>
-      <p class="text-[10px] text-[#6B7280]">patients</p>
+  <!-- Clinic card -->
+  <div class="bg-white rounded-3xl shadow-soft-sm p-4 mb-4 flex items-center gap-4">
+    <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3FC0D2] to-[#1D8FA8] text-white shadow-soft-sm">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16M9 8h1m4 0h1M9 12h1m4 0h1M10 21v-4a1 1 0 011-1h2a1 1 0 011 1v4"/></svg>
+    </span>
+    <div class="flex-1 min-w-0">
+      <p class="font-semibold text-[#1F2937] text-sm">MSHFI — Mindalano Specialist Hospital Foundation Inc.</p>
+      <p class="text-xs text-[#6B7280] mt-0.5">Panggao Saduc, Marawi City, Lanao del Sur</p>
     </div>
-    <div class="bg-white rounded-2xl shadow-soft-sm p-3 text-center">
-      <div class="size-9 mx-auto mb-1.5 rounded-full bg-[#F5F7FA] flex items-center justify-center">
-        <svg class="w-4 h-4 text-[#1F2937]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-      </div>
-      <p class="font-semibold text-sm text-[#1F2937]">{{ doctor.doctor_profile.years_of_experience|default:"—" }}{% if doctor.doctor_profile.years_of_experience %}+{% endif %}</p>
-      <p class="text-[10px] text-[#6B7280]">experience</p>
-    </div>
+    {# display only #}
+    <span class="shrink-0 flex items-center gap-1 text-xs font-medium text-[#1D8FA8]">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+      View on Map
+    </span>
   </div>
 
   {% if doctor.doctor_profile.bio %}
-  <div class="bg-white rounded-2xl shadow-soft-sm p-6 mb-4">
-    <h2 class="font-semibold text-[#1F2937] mb-2">About me</h2>
+  <div class="bg-white rounded-3xl shadow-soft-sm p-6 mb-4">
+    <h2 class="font-semibold text-[#1F2937] mb-2">About</h2>
     <p class="text-sm text-[#4B5563] leading-relaxed">{{ doctor.doctor_profile.bio }}</p>
   </div>
   {% endif %}
 
-  <div class="bg-white rounded-2xl shadow-soft-sm p-6 mb-24 md:mb-6">
+  <!-- Available Days -->
+  <div class="bg-white rounded-3xl shadow-soft-sm p-6 mb-4">
+    <h2 class="font-semibold text-[#1F2937] mb-3">Available Days</h2>
     {% if schedules %}
-    <div class="hidden md:block overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="text-left text-[#6B7280] border-b border-[#E5E7EB]">
-          <tr><th class="pb-3 font-medium">Day</th><th class="pb-3 font-medium">Start</th><th class="pb-3 font-medium">End</th></tr>
-        </thead>
-        <tbody class="divide-y divide-[#F5F7FA]">
-          {% for s in schedules %}
-          <tr>
-            <td class="py-3 font-medium text-[#1F2937]">{{ s.specific_date|date:"D, M j, Y" }}</td>
-            <td class="py-3 text-[#4B5563]">{{ s.start_time|time:"g:i A" }}</td>
-            <td class="py-3 text-[#4B5563]">{{ s.end_time|time:"g:i A" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="flex md:hidden flex-col gap-2">
+    <div class="flex flex-wrap gap-2">
       {% for s in schedules %}
-      <div class="flex items-center justify-between bg-[#F5F7FA] rounded-xl px-3.5 py-2.5 text-sm">
-        <span class="font-medium text-[#1F2937]">{{ s.specific_date|date:"D, M j, Y" }}</span>
-        <span class="text-[#4B5563]">{{ s.start_time|time:"g:i A" }} – {{ s.end_time|time:"g:i A" }}</span>
-      </div>
+      <span class="inline-flex flex-col items-center rounded-2xl bg-[#F0FAFB] px-4 py-2.5 text-center">
+        <span class="text-sm font-semibold text-[#1F2937]">{{ s.specific_date|date:"D, M j" }}</span>
+        <span class="text-[11px] text-[#6B7280] mt-0.5">{{ s.start_time|time:"g:i A" }} – {{ s.end_time|time:"g:i A" }}</span>
+      </span>
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-[#6B7280] text-center py-10">This doctor has no availability set yet.</p>
+    <p class="text-sm text-[#6B7280]">No upcoming availability set yet.</p>
     {% endif %}
   </div>
 
-  <!-- Sticky book button (mobile) -->
-  <div class="fixed bottom-16 inset-x-0 p-4 bg-white border-t border-[#E5E7EB] md:hidden">
-    <a href="/patient/appointments/book/{{ doctor.pk }}/slots/"
-       class="block w-full text-center bg-brand-500 hover:bg-brand-600 text-white font-medium py-3.5 rounded-xl text-sm transition">
-      Book Appointment
-    </a>
-  </div>
-  <div class="hidden md:block">
-    <a href="/patient/appointments/book/{{ doctor.pk }}/slots/"
-       class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-medium py-3 px-8 rounded-xl text-sm transition">
-      Book Appointment
+  <div class="mb-24 md:mb-6">
+    <a href="{% url 'patient:book_step2' doctor_id=doctor.pk %}"
+       class="flex items-center justify-center gap-2 w-full text-center bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8] hover:brightness-105 text-white font-medium py-4 rounded-2xl text-sm transition shadow-soft">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Book Now
     </a>
   </div>
 </div>

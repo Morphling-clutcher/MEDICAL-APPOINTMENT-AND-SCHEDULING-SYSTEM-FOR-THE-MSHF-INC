@@ -39,7 +39,7 @@ const statusStyles: Record<string, string> = {
 	Cancelled: "border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200/70",
 };
 
-const avatarPalette = ["#4D7493", "#34536A", "#2E8AB5", "#7395B5"];
+const avatarPalette = ["#2AAFC4", "#17758B", "#2697B3", "#52C2D5"];
 
 function initials(name: string) {
 	const parts = name.trim().split(/\s+/);
@@ -64,7 +64,7 @@ export function AppointmentsTable({
 	return (
 		<Card className="animate-fade-up border-border/70 md:col-span-2" style={{ animationDelay: "260ms" }}>
 			<CardHeader>
-				<CardTitle className="text-balance text-[#1F3342]">{title}</CardTitle>
+				<CardTitle className="text-balance text-[#16404C]">{title}</CardTitle>
 				<CardDescription className="text-pretty">
 					{rows.length} {rows.length === 1 ? "appointment" : "appointments"}
 				</CardDescription>

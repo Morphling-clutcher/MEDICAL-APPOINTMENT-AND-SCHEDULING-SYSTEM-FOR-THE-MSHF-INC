@@ -35,8 +35,8 @@
             {% if appt.doctor.profile_picture %}
               <img src="{{ appt.doctor.profile_picture.url }}" class="size-14 rounded-xl object-cover shrink-0" alt="">
             {% else %}
-              <div class="size-14 rounded-xl bg-[#E6EEF3] flex items-center justify-center shrink-0">
-                <span class="text-[#4D7493] font-semibold">{{ appt.doctor.get_full_name|slice:":1"|upper }}</span>
+              <div class="size-14 rounded-xl bg-[#DCF4F8] flex items-center justify-center shrink-0">
+                <span class="text-[#2AAFC4] font-semibold">{{ appt.doctor.get_full_name|slice:":1"|upper }}</span>
               </div>
             {% endif %}
             <div class="min-w-0">
@@ -73,7 +73,7 @@
     {% else %}
     <p class="text-[#6B7280] py-10 text-center">
       No upcoming appointments.
-      <a href="/patient/appointments/book/" class="text-[#4D7493] hover:underline">Book one</a>
+      <a href="/patient/appointments/book/" class="text-[#2AAFC4] hover:underline">Book one</a>
     </p>
     {% endif %}
   </div>
@@ -91,8 +91,8 @@
             {% if appt.doctor.profile_picture %}
               <img src="{{ appt.doctor.profile_picture.url }}" class="size-14 rounded-xl object-cover shrink-0" alt="">
             {% else %}
-              <div class="size-14 rounded-xl bg-[#E6EEF3] flex items-center justify-center shrink-0">
-                <span class="text-[#4D7493] font-semibold">{{ appt.doctor.get_full_name|slice:":1"|upper }}</span>
+              <div class="size-14 rounded-xl bg-[#DCF4F8] flex items-center justify-center shrink-0">
+                <span class="text-[#2AAFC4] font-semibold">{{ appt.doctor.get_full_name|slice:":1"|upper }}</span>
               </div>
             {% endif %}
             <div class="min-w-0">
@@ -111,7 +111,7 @@
             Re-Book
           </a>
           {% if appt.pk in reviewed_appointment_ids %}
-          <span class="flex-1 text-center bg-[#E6EEF3] text-[#6B7280] font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-1.5">
+          <span class="flex-1 text-center bg-[#DCF4F8] text-[#6B7280] font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-1.5">
             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             Reviewed
           </span>
@@ -142,7 +142,7 @@
             {% if appt.doctor.profile_picture %}
               <img src="{{ appt.doctor.profile_picture.url }}" class="size-14 rounded-xl object-cover shrink-0 grayscale opacity-80" alt="">
             {% else %}
-              <div class="size-14 rounded-xl bg-[#E6EEF3] flex items-center justify-center shrink-0">
+              <div class="size-14 rounded-xl bg-[#DCF4F8] flex items-center justify-center shrink-0">
                 <span class="text-[#6B7280] font-semibold">{{ appt.doctor.get_full_name|slice:":1"|upper }}</span>
               </div>
             {% endif %}
@@ -194,6 +194,39 @@
     var requested = new URLSearchParams(window.location.search).get('tab');
     if (requested === 'completed' || requested === 'cancelled') {
       bookingsTab(requested);
+    }
+  })();
+</script>
+{# ── Booking success overlay (reference design) — appears when the booking flash message is present ── #}
+<div id="booked-overlay" class="hidden fixed inset-0 z-[60] bg-white/95 backdrop-blur-sm flex items-center justify-center p-6">
+  <div class="max-w-sm w-full text-center animate-fade-up">
+    <div class="relative inline-flex mb-6">
+      <span class="absolute -top-2 -left-4 size-1.5 rounded-full bg-[#3FC0D2]"></span>
+      <span class="absolute -top-4 right-2 size-2 rounded-full bg-amber-300"></span>
+      <span class="absolute top-6 -right-5 size-1.5 rounded-full bg-red-300"></span>
+      <span class="absolute -bottom-2 -left-5 size-2 rounded-full bg-green-300"></span>
+      <span class="absolute -bottom-3 right-0 size-1.5 rounded-full bg-[#86D6E3]"></span>
+      <span class="flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-[#34D399] to-[#10B981] text-white shadow-soft-lg">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </span>
+    </div>
+    <h2 class="text-2xl font-semibold text-[#1F2937] mb-2">Appointment Booked!</h2>
+    <p class="text-sm text-[#6B7280] mb-8">Your appointment request has been sent successfully. Our staff will confirm the exact time and you'll be notified.</p>
+    <button type="button" onclick="document.getElementById('booked-overlay').classList.add('hidden')"
+            class="w-full bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8] hover:brightness-105 text-white font-medium py-3.5 rounded-2xl text-sm transition shadow-soft">
+      View Appointment
+    </button>
+  </div>
+</div>
+<script>
+  (function () {
+    var toasts = document.querySelectorAll('[data-flash-toast]');
+    for (var i = 0; i < toasts.length; i++) {
+      if (toasts[i].textContent.indexOf('Appointment request sent') !== -1) {
+        toasts[i].remove();
+        document.getElementById('booked-overlay').classList.remove('hidden');
+        break;
+      }
     }
   })();
 </script>

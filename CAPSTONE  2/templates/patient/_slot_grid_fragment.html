@@ -12,7 +12,7 @@ directly by the including template, so this OOB copy is skipped then.
 {% if error %}
 <div class="bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] rounded-xl p-3.5 text-sm mb-4">{{ error }}</div>
 {% elif selected_date %}
-<div class="bg-[#F5F7FA] rounded-2xl p-4 flex items-center justify-between gap-4">
+<div class="bg-gradient-to-r from-[#F0FAFB] to-[#DCF4F8] rounded-2xl p-4 flex items-center justify-between gap-4">
   <div>
     <p class="text-xs text-[#6B7280] uppercase tracking-wide font-medium mb-0.5">Selected Date</p>
     <p class="font-semibold text-[#1F2937]">{{ selected_date_display }}</p>
@@ -20,7 +20,7 @@ directly by the including template, so this OOB copy is skipped then.
   </div>
   <a hx-get="{% url 'patient:book_step4' doctor_id=doctor.pk %}?appointment_date={{ selected_date }}"
      hx-target="#modal-root" hx-swap="innerHTML"
-     class="shrink-0 bg-brand-500 hover:bg-brand-600 text-white font-medium py-3 px-5 rounded-xl text-sm transition cursor-pointer">
+     class="shrink-0 bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8] hover:brightness-105 text-white font-medium py-3 px-6 rounded-full text-sm transition cursor-pointer shadow-soft-sm">
     Continue
   </a>
 </div>

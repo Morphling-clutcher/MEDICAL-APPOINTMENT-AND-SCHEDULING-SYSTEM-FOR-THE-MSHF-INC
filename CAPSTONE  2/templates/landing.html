@@ -7,19 +7,19 @@
   .lp { font-family: 'Poppins', 'Inter', sans-serif; }
   .lp-heading { font-family: 'Poppins', sans-serif; }
   /* Landing-page indigo palette (matches reference design) */
-  .bg-ind    { background-color: #3A459B; }
-  .bg-ind-2  { background-color: #333D8A; }
-  .bg-ind-3  { background-color: #414CA8; }
-  .text-ind  { color: #3A459B; }
-  .border-ind{ border-color: #3A459B; }
-  .hover\:bg-ind-2:hover { background-color: #333D8A; }
-  .hover\:bg-ind-3:hover { background-color: #414CA8; }
+  .bg-ind    { background-image: linear-gradient(135deg, #2CB4C9 0%, #1B86A0 100%); }
+  .bg-ind-2  { background-color: rgba(255,255,255,0.10); backdrop-filter: blur(2px); }
+  .bg-ind-3  { background-color: #35B4C8; }
+  .text-ind  { color: #1D8FA8; }
+  .border-ind{ border-color: #1D8FA8; }
+  .hover\:bg-ind-2:hover { background-color: #17758B; }
+  .hover\:bg-ind-3:hover { background-color: #35B4C8; }
   .photo-slot { background:#000; } /* image placeholders — real photos to be added later */
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="lp min-h-screen bg-[#EEF0F8] text-ink">
+<div class="lp min-h-screen bg-[#EFF9FB] text-ink">
 
   <!-- ══════════ HERO (indigo panel: nav + headline + photo) ══════════ -->
   <section class="bg-ind text-white">
@@ -88,27 +88,27 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
         {% comment %} test departments — replace with real MSHFI departments later {% endcomment %}
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m4-4H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m4-4H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Emergency<br>Department</p>
         </div>
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Pediatric<br>Department</p>
         </div>
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Gynecology<br>Department</p>
         </div>
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Cardiology<br>Department</p>
         </div>
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Neurology<br>Department</p>
         </div>
         <div class="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-soft-sm hover:shadow-soft hover:-translate-y-0.5 transition-all">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF0F8] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/></svg></span>
+          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EFF9FB] text-ind"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/></svg></span>
           <p class="lp-heading font-semibold text-ink leading-snug">Psychiatric<br>Department</p>
         </div>
       </div>
@@ -120,7 +120,7 @@
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       <div class="relative">
         <div class="photo-slot rounded-3xl w-4/5 h-64"></div>
-        <div class="photo-slot rounded-2xl w-2/5 h-40 absolute -bottom-8 right-6 ring-8 ring-[#EEF0F8]"></div>
+        <div class="photo-slot rounded-2xl w-2/5 h-40 absolute -bottom-8 right-6 ring-8 ring-[#EFF9FB]"></div>
         <div class="absolute left-1/3 bottom-0 flex flex-col items-center justify-center size-24 rounded-full bg-ind text-white shadow-soft-lg">
           <span class="lp-heading font-semibold text-xl leading-none">30+</span>
           <span class="text-[10px] text-white/70 mt-0.5">Experiences</span>
@@ -135,7 +135,7 @@
           <li class="flex items-center gap-2.5"><svg class="w-5 h-5 text-ind shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> World Class Reputed Hospital</li>
           <li class="flex items-center gap-2.5"><svg class="w-5 h-5 text-ind shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Discount on all Pathology &amp; Radiology Treatment</li>
         </ul>
-        <a href="{% url 'accounts:register' %}" class="inline-block px-6 py-3 rounded-xl bg-ind hover:bg-ind-2 text-white text-sm font-medium transition-colors">More Info</a>
+        <a href="{% url 'accounts:register' %}" class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8] hover:brightness-105 text-white text-sm font-medium transition-colors">More Info</a>
       </div>
     </div>
   </section>
@@ -205,7 +205,7 @@
         <p class="text-ink-soft text-sm max-w-md mx-auto mb-6">Test supporting text for the call-to-action card. Replace with a short paragraph about MSHFI's services. (test)</p>
         <div class="flex items-center justify-center gap-3">
           <a href="#contact" class="px-6 py-2.5 rounded-full border border-gray-200 text-ink-soft hover:border-ind hover:text-ind text-sm font-medium transition-colors">Contact Now</a>
-          <a href="{% url 'accounts:register' %}" class="px-6 py-2.5 rounded-full bg-ind hover:bg-ind-2 text-white text-sm font-medium transition-colors">Learn More</a>
+          <a href="{% url 'accounts:register' %}" class="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8] hover:brightness-105 text-white text-sm font-medium transition-colors">Learn More</a>
         </div>
       </div>
     </div>

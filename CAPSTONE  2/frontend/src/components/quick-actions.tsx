@@ -26,7 +26,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
 	return (
 		<Card className="animate-fade-up border-border/70" style={{ animationDelay: "320ms" }}>
 			<CardHeader>
-				<CardTitle className="text-[#1F3342]">Quick actions</CardTitle>
+				<CardTitle className="text-[#16404C]">Quick actions</CardTitle>
 				<CardDescription>Shortcuts to common tasks.</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -37,11 +37,11 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
 								className="group rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-accent"
 								href={a.href}
 							>
-								<ItemMedia variant="icon" className="bg-accent text-[#1F3342] transition-colors group-hover:bg-[#4D7493] group-hover:text-white">
+								<ItemMedia variant="icon" className="bg-accent text-[#16404C] transition-colors group-hover:bg-[#2AAFC4] group-hover:text-white">
 									<ZapIcon aria-hidden="true" />
 								</ItemMedia>
 								<ItemContent>
-									<ItemTitle className="group-hover:text-[#1F3342]">{a.title}</ItemTitle>
+									<ItemTitle className="group-hover:text-[#16404C]">{a.title}</ItemTitle>
 									{a.description ? (
 										<ItemDescription className="line-clamp-1">
 											{a.description}
@@ -51,7 +51,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
 								<ItemActions>
 									<ChevronRightIcon
 										aria-hidden="true"
-										className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-[#4D7493]"
+										className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-[#2AAFC4]"
 									/>
 								</ItemActions>
 							</a>

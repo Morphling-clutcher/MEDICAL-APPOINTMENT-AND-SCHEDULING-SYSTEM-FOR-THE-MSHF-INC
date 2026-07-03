@@ -42,7 +42,7 @@ function StatCard({
 				)}
 			</CardHeader>
 			<CardContent className="flex flex-row items-center gap-2">
-				<p className="font-semibold text-2xl tabular-nums text-[#1F3342]">{displayValue}</p>
+				<p className="font-semibold text-2xl tabular-nums text-[#16404C]">{displayValue}</p>
 			</CardContent>
 		</Card>
 	);

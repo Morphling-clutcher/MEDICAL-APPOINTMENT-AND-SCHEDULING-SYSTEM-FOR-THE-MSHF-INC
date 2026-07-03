@@ -1,39 +1,31 @@
 {% comment %}
-Shared progress indicator for the patient booking flow.
+Shared progress indicator for the patient booking flow (segmented-bar style).
 Pass current (the active step number, 1-4), plus doctor_id and
-appointment_date once a doctor/date have been chosen, when including
-this partial from a booking-flow template. Completed steps before
-the active one are clickable links back into the flow; the active
-step is filled; later steps are dimmed and not clickable.
+appointment_date once a doctor/date have been chosen. Completed steps
+before the active one are clickable links back into the flow; the active
+step's bar is teal; later steps are dimmed and not clickable.
 {% endcomment %}
-<div class="flex items-center gap-1.5 mb-6 text-xs flex-wrap">
-  {% if current >= 1 %}
+<div class="mb-6">
+  <div class="flex items-center gap-2 mb-2">
     {% if current > 1 %}
-    <a href="{% url 'patient:book_step1' %}" class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#1F2937] hover:bg-[#E5E7EB]">1. Doctor</a>
+    <a href="{% url 'patient:book_step1' %}" class="flex-1 h-1.5 rounded-full bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]" title="1. Doctor"></a>
     {% else %}
-    <span class="px-3 py-1.5 rounded-full font-medium bg-brand-500 text-white">1. Doctor</span>
+    <span class="flex-1 h-1.5 rounded-full {% if current == 1 %}bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]{% else %}bg-[#E5E7EB]{% endif %}"></span>
     {% endif %}
-  {% endif %}
-  <span class="text-[#9CA3AF]">&rarr;</span>
-  {% if current > 2 %}
-  <a href="/patient/appointments/book/{{ doctor_id }}/slots/?date={{ appointment_date }}" class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#1F2937] hover:bg-[#E5E7EB]">2. Date</a>
-  {% elif current == 2 %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-brand-500 text-white">2. Date</span>
-  {% else %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#9CA3AF]">2. Date</span>
-  {% endif %}
-  <span class="text-[#9CA3AF]">&rarr;</span>
-  {% if current > 3 %}
-  <a href="/patient/appointments/book/{{ doctor_id }}/details/?appointment_date={{ appointment_date }}" class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#1F2937] hover:bg-[#E5E7EB]">3. Patient Details</a>
-  {% elif current == 3 %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-brand-500 text-white">3. Patient Details</span>
-  {% else %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#9CA3AF]">3. Patient Details</span>
-  {% endif %}
-  <span class="text-[#9CA3AF]">&rarr;</span>
-  {% if current == 4 %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-brand-500 text-white">4. Review &amp; Confirm</span>
-  {% else %}
-  <span class="px-3 py-1.5 rounded-full font-medium bg-[#F5F7FA] text-[#9CA3AF]">4. Review &amp; Confirm</span>
-  {% endif %}
+    {% if current > 2 %}
+    <a href="/patient/appointments/book/{{ doctor_id }}/slots/?date={{ appointment_date }}" class="flex-1 h-1.5 rounded-full bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]" title="2. Date"></a>
+    {% else %}
+    <span class="flex-1 h-1.5 rounded-full {% if current == 2 %}bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]{% else %}bg-[#E5E7EB]{% endif %}"></span>
+    {% endif %}
+    {% if current > 3 %}
+    <a href="/patient/appointments/book/{{ doctor_id }}/details/?appointment_date={{ appointment_date }}" class="flex-1 h-1.5 rounded-full bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]" title="3. Patient Details"></a>
+    {% else %}
+    <span class="flex-1 h-1.5 rounded-full {% if current == 3 %}bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]{% else %}bg-[#E5E7EB]{% endif %}"></span>
+    {% endif %}
+    <span class="flex-1 h-1.5 rounded-full {% if current == 4 %}bg-gradient-to-r from-[#3FC0D2] to-[#1D8FA8]{% else %}bg-[#E5E7EB]{% endif %}"></span>
+  </div>
+  <p class="text-[11px] text-[#9CA3AF]">
+    Step {{ current }} of 4 —
+    {% if current == 1 %}Choose Doctor{% elif current == 2 %}Pick a Date{% elif current == 3 %}Patient Details{% else %}Review &amp; Confirm{% endif %}
+  </p>
 </div>

@@ -4,8 +4,8 @@
 
 /*
  * MSHFI Healthcare design system (single source of truth):
- *   Primary   #4D7493   hsl(207 31% 44%)  "Hospital Green" — buttons, links, focus rings
- *   Secondary #8DD2EF   hsl(198 75% 75%)  soft sky blue    — accents, soft surfaces
+ *   Primary   #2AAFC4   hsl(188 65% 47%)  teal — buttons, links, focus rings
+ *   Secondary #93DCEA   hsl(191 68% 75%)  soft aqua          — accents, soft surfaces
  *   Soft gray #F5F7FA   hsl(210 33% 97%)  app background / muted surfaces
  *   Border    #E5E7EB   hsl(220 13% 91%)
  *   Text      #1F2937 / #6B7280
@@ -20,33 +20,33 @@
     --card-foreground: 215 28% 17%;
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
-    --primary: 207 31% 44%;
+    --primary: 188 65% 47%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 198 65% 94%;
-    --secondary-foreground: 208 34% 31%;
+    --secondary: 189 60% 94%;
+    --secondary-foreground: 191 72% 26%;
     --muted: 210 33% 97%;
     --muted-foreground: 220 9% 46%;
-    --accent: 198 65% 93%;
-    --accent-foreground: 208 34% 31%;
+    --accent: 189 60% 93%;
+    --accent-foreground: 191 72% 26%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 207 31% 44%;
+    --ring: 188 65% 47%;
     --radius: 1rem; /* 16px cards per design spec */
-    --chart-1: 207 31% 44%;
-    --chart-2: 198 75% 62%;
-    --chart-3: 208 34% 31%;
-    --chart-4: 207 31% 58%;
-    --chart-5: 207 31% 85%;
+    --chart-1: 188 65% 47%;
+    --chart-2: 188 59% 71%;
+    --chart-3: 191 72% 32%;
+    --chart-4: 189 61% 58%;
+    --chart-5: 188 67% 92%;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 9% 46%;
-    --sidebar-primary: 207 31% 44%;
+    --sidebar-primary: 188 65% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 33% 97%;
-    --sidebar-accent-foreground: 208 34% 31%;
+    --sidebar-accent-foreground: 191 72% 26%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 207 31% 44%;
+    --sidebar-ring: 188 65% 47%;
   }
   .dark {
     --sidebar-background: 209 36% 12%;

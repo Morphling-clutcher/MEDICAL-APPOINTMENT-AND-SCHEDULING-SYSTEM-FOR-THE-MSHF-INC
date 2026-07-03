@@ -10,7 +10,7 @@ calendar. The prev/next month arrows swap just this fragment via
 is actually picked. The actual appointment TIME is assigned afterward by
 staff, not chosen here.
 {% endcomment %}
-<div id="calendar-widget" {% if oob %}hx-swap-oob="outerHTML"{% endif %} class="bg-[#F5F7FA] rounded-2xl p-4">
+<div id="calendar-widget" {% if oob %}hx-swap-oob="outerHTML"{% endif %} class="bg-white rounded-2xl p-4 shadow-soft-sm ring-1 ring-gray-100">
   <input type="hidden" id="selected-date-input" value="{{ selected_date }}">
 
   <!-- Month header + nav -->
@@ -20,13 +20,13 @@ staff, not chosen here.
       <button type="button"
               hx-get="{% url 'patient:book_step2_calendar_partial' doctor_id=doctor.pk %}?year={% if calendar_month == 1 %}{{ calendar_year|add:'-1' }}{% else %}{{ calendar_year }}{% endif %}&month={% if calendar_month == 1 %}12{% else %}{{ calendar_month|add:'-1' }}{% endif %}&selected_date={{ selected_date }}"
               hx-target="#calendar-widget" hx-swap="outerHTML"
-              class="size-7 flex items-center justify-center rounded-full bg-white text-[#4B5563] hover:bg-[#E5E7EB] transition cursor-pointer">
+              class="size-7 flex items-center justify-center rounded-full bg-[#F5F7FA] text-[#4B5563] hover:bg-[#DCF4F8] hover:text-[#1D8FA8] transition cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
       </button>
       <button type="button"
               hx-get="{% url 'patient:book_step2_calendar_partial' doctor_id=doctor.pk %}?year={% if calendar_month == 12 %}{{ calendar_year|add:'1' }}{% else %}{{ calendar_year }}{% endif %}&month={% if calendar_month == 12 %}1{% else %}{{ calendar_month|add:'1' }}{% endif %}&selected_date={{ selected_date }}"
               hx-target="#calendar-widget" hx-swap="outerHTML"
-              class="size-7 flex items-center justify-center rounded-full bg-white text-[#4B5563] hover:bg-[#E5E7EB] transition cursor-pointer">
+              class="size-7 flex items-center justify-center rounded-full bg-[#F5F7FA] text-[#4B5563] hover:bg-[#DCF4F8] hover:text-[#1D8FA8] transition cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
@@ -50,7 +50,7 @@ staff, not chosen here.
                 hx-get="{% url 'patient:book_step2_partial' doctor_id=doctor.pk %}?date={{ cell.date }}"
                 hx-target="#slot-grid" hx-swap="innerHTML"
                 class="calendar-day aspect-square rounded-full text-sm font-medium flex items-center justify-center transition cursor-pointer
-                  {% if cell.date == selected_date %}bg-brand-500 text-white{% else %}bg-white text-[#1F2937] hover:bg-[#E5E7EB]{% endif %}">
+                  {% if cell.date == selected_date %}bg-gradient-to-br from-[#3FC0D2] to-[#1D8FA8] text-white shadow-soft-sm{% else %}text-[#1F2937] hover:bg-[#DCF4F8]{% endif %}">
           {{ cell.day }}
         </button>
         {% elif cell.status == 'unavailable' %}
@@ -68,7 +68,7 @@ staff, not chosen here.
 
   <!-- Legend -->
   <div class="flex items-center gap-4 mt-3 pt-3 border-t border-[#E5E7EB] text-[11px] text-[#6B7280]">
-    <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-white border border-[#9CA3AF]"></span> Available</span>
+    <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#2AAFC4]"></span> Available</span>
     <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#E5E7EB]"></span> Unavailable</span>
   </div>
 </div>

@@ -31,29 +31,29 @@
           },
           colors: {
             // ── MSHFI Healthcare design system ─────────────────────────────
-            // Primary "Hospital Green" #4D7493 with a full derived scale.
+            // Primary "Hospital Green" #2AAFC4 with a full derived scale.
             brand: {
-              50:  '#F4F8FA',
-              100: '#E6EEF3',
-              200: '#CDDDE8',
-              300: '#A2BFD3',
-              400: '#7395B5',
-              500: '#4D7493', // Primary
-              600: '#416581', // Primary hover
-              700: '#34536A',
-              800: '#294356',
-              900: '#1F3342',
+              50:  '#F0FAFB',
+              100: '#DCF4F8',
+              200: '#B9E8F0',
+              300: '#86D6E3',
+              400: '#52C2D5',
+              500: '#2AAFC4', // Primary
+              600: '#1D8FA8', // Primary hover
+              700: '#17758B',
+              800: '#175D6E',
+              900: '#16404C',
             },
             // Secondary Blue #8DD2EF scale — soft sky accents.
             secondary: {
-              50:  '#F2FAFD',
-              100: '#E3F4FB',
-              200: '#C8E9F7',
-              300: '#8DD2EF', // Secondary
-              400: '#63BFE5',
-              500: '#3FA8D6',
-              600: '#2E8AB5',
-              700: '#276F92',
+              50:  '#F2FBFD',
+              100: '#E0F6FA',
+              200: '#C2ECF4',
+              300: '#93DCEA', // Secondary
+              400: '#64CAE0',
+              500: '#3FB8D3',
+              600: '#2697B3',
+              700: '#1F7A93',
             },
             surface: '#FEFEFE',   // Light background
             softgray: '#F5F7FA',  // Soft gray surfaces / app background
@@ -209,10 +209,16 @@
       }
     });
 
-    // Close modal on backdrop click
+    // Close modal on backdrop click. We can't just check `event.target === modal`
+    // here: the overlay always contains an inner full-size wrapper (for centering
+    // the panel), so a click anywhere in the dimmed area actually lands on that
+    // wrapper, never on #modal-overlay itself. Instead we check that the click
+    // happened inside the overlay but outside the visible white panel.
     document.addEventListener('click', function(event) {
       const modal = document.getElementById('modal-overlay');
-      if (event.target === modal) {
+      if (!modal || !modal.classList.contains('open')) return;
+      const panel = modal.querySelector('.modal-panel');
+      if (modal.contains(event.target) && (!panel || !panel.contains(event.target))) {
         closeModal();
       }
     });
