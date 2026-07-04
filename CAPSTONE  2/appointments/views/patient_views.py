@@ -248,15 +248,15 @@ def appointment_list(request):
     upcoming = Appointment.objects.filter(
         patient=request.user,
         status__in=['Pending Time Assignment', 'Scheduled', 'Rescheduled', 'Pending Reschedule']
-    ).select_related('doctor').order_by('appointment_date', 'appointment_time')
+    ).select_related('doctor', 'patient_details').order_by('appointment_date', 'appointment_time')
     completed = Appointment.objects.filter(
         patient=request.user,
         status='Completed'
-    ).select_related('doctor', 'results').order_by('-appointment_date')
+    ).select_related('doctor', 'results', 'patient_details').order_by('-appointment_date')
     cancelled = Appointment.objects.filter(
         patient=request.user,
         status='Cancelled'
-    ).select_related('doctor').order_by('-appointment_date')
+    ).select_related('doctor', 'patient_details').order_by('-appointment_date')
     completed_appointment_ids = set(completed.values_list('pk', flat=True))
     reviewed_appointment_ids = set(
         Feedback.objects.filter(
@@ -271,9 +271,6 @@ def appointment_list(request):
 
 @role_required('patient')
 def book_step1(request):
-    # Check if the patient has an active appointment
-    has_active = Appointment.has_active_appointment(request.user)
-
     doctors = CustomUser.objects.filter(role='doctor').select_related('doctor_profile').annotate(
         patient_count=models.Count('doctor_appointments__patient', distinct=True),
     )
@@ -294,7 +291,7 @@ def book_step1(request):
     })
     return render(request, 'patient/book_step1.html', {
         'doctors': doctors, 'query': query, 'specializations': specializations,
-        'selected_specialty': specialty, 'has_active_appointment': has_active,
+        'selected_specialty': specialty,
     })
 
 
@@ -392,9 +389,6 @@ def book_step2_slots(request, doctor_id):
     year, month = _resolve_calendar_month(request, selected_date_str)
     calendar_weeks = _compute_month_availability(doctor, year, month)
 
-    # Check if the patient has an active appointment
-    has_active = Appointment.has_active_appointment(request.user)
-
     context = {
         'doctor': doctor,
         'selected_date': selected_date_str,
@@ -406,7 +400,6 @@ def book_step2_slots(request, doctor_id):
         'calendar_month': month,
         'calendar_month_name': calendar_module.month_name[month],
         'today_iso': date.today().isoformat(),
-        'has_active_appointment': has_active,
     }
     if request.htmx:
         return render(request, 'patient/_book_step2_modal.html', context)
@@ -504,16 +497,6 @@ def book_step4_details(request, doctor_id):
         # Can't proceed without knowing which date this is for.
         return redirect('patient:book_step2', doctor_id=doctor.pk)
 
-    # Check if the patient has an active appointment
-    has_active = Appointment.has_active_appointment(request.user)
-    if has_active:
-        messages.error(
-            request,
-            'You already have an active appointment. Please complete or cancel '
-            'your current appointment before booking a new one.'
-        )
-        return redirect('patient:book_step1')
-
     already_consented = _patient_already_consented(request.user)
 
     if request.method == 'POST':
@@ -591,27 +574,6 @@ def book_step3_confirm(request):
             return render(request, 'patient/book_step4_details.html', response_ctx)
 
         details = form.cleaned_data
-
-        # Check if the patient already has an active appointment.
-        # This validation is enforced at the backend level to prevent
-        # bypass attempts through developer tools or direct API requests.
-        if Appointment.has_active_appointment(request.user):
-            messages.error(
-                request,
-                'You already have an active appointment. Please complete or cancel '
-                'your current appointment before booking a new one.'
-            )
-            response_ctx = {
-                'doctor': doctor,
-                'appointment_date': date_str,
-                'appointment_date_display': _format_date_str(date_str),
-                'form': form,
-                'already_consented': already_consented,
-                'title': 'Patient Details',
-            }
-            if request.htmx:
-                return render(request, 'patient/_book_step4_modal.html', response_ctx)
-            return render(request, 'patient/book_step4_details.html', response_ctx)
 
         # No time-based conflict check here — there's no time yet. Staff
         # checks for double-booking when they assign the actual time
@@ -746,7 +708,7 @@ def reschedule_appointment(request, pk):
 @role_required('patient')
 def appointment_detail(request, pk):
     appointment = get_object_or_404(
-        Appointment.objects.select_related('doctor', 'doctor__doctor_profile', 'results'), pk=pk, patient=request.user
+        Appointment.objects.select_related('doctor', 'doctor__doctor_profile', 'results', 'patient_details'), pk=pk, patient=request.user
     )
     medical_record = None
     if appointment.status == 'Completed':
