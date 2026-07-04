@@ -1,7 +1,7 @@
 {% extends "secretary/base_secretary.html" %}
 {% block page_title %}Assign Appointment Time{% endblock %}
 {% block secretary_content %}
-<div class="max-w-md">
+<div class="max-w-2xl">
   <div class="bg-white rounded-2xl shadow-soft p-8">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Assign Appointment Time</h2>
     {% if form.non_field_errors %}
@@ -25,17 +25,38 @@
       The doctor has no working hours set for this date.
     </div>
     {% endif %}
+
+    <!-- Occupied & Available Times Section -->
+    <div id="scheduleSection" class="mb-6 space-y-4">
+      <!-- Occupied Times -->
+      <div id="occupiedSection" style="display: none;">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">📅 Occupied Times</h3>
+        <div id="occupiedTimesList" class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm space-y-2">
+          <p class="text-red-600 text-xs animate-pulse">Loading schedule...</p>
+        </div>
+      </div>
+
+      <!-- Available Times Grid -->
+      <div id="availableSection" style="display: none;">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">✅ Available Times</h3>
+        <div id="availableTimesList" class="bg-green-50 border border-green-200 rounded-xl p-3">
+          <p class="text-green-600 text-xs animate-pulse">Loading available times...</p>
+        </div>
+      </div>
+    </div>
+
     <form method="post" class="space-y-4">
       {% csrf_token %}
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Appointment Time</label>
-        <input type="time" name="appointment_time" required
+        <input type="time" id="appointmentTimeInput" name="appointment_time" required
                value="{{ form.appointment_time.value|default:'' }}"
-               class="w-full border {% if form.appointment_time.errors %}border-red-400{% else %}border-gray-300{% endif %} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
-        {% if form.appointment_time.errors %}<p class="text-red-600 text-xs mt-1">{{ form.appointment_time.errors.0 }}</p>{% endif %}
+               class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors" />
+        <p id="timeValidationError" class="text-red-600 text-xs mt-1" style="display: none;"></p>
+        <p id="timeValidationSuccess" class="text-green-600 text-xs mt-1" style="display: none;">✓ This time is available</p>
       </div>
       <div class="flex gap-3">
-        <button type="submit" {% if not blocks %}disabled{% endif %}
+        <button type="submit" id="confirmTimeBtn" {% if not blocks %}disabled{% endif %}
                 class="flex-1 bg-purple-600 text-white font-semibold py-3 rounded-xl hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
           Confirm Time
         </button>
@@ -46,4 +67,159 @@
     </form>
   </div>
 </div>
+
+<style>
+  .time-slot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .time-slot.occupied {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+
+  .time-slot.available {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+</style>
+
+<script>
+const appointmentId = '{{ appt.pk }}';
+let occupiedTimesMap = {}; // Maps time -> {time, time_display, patient, status}
+
+function loadOccupiedTimes() {
+  fetch(`/secretary/appointments/${appointmentId}/occupied-times/`)
+    .then(r => r.json())
+    .then(data => {
+      occupiedTimesMap = {};
+      data.occupied_times.forEach(t => {
+        occupiedTimesMap[t.time] = t;
+      });
+      renderSchedules();
+    })
+    .catch(e => {
+      console.error('Failed to load occupied times:', e);
+      document.getElementById('scheduleSection').style.display = 'none';
+    });
+}
+
+function getWorkingHourBlocks() {
+  const blocksText = `{% for start, end in blocks %}{{ start|time:"H:i" }}-{{ end|time:"H:i" }}{% if not forloop.last %},{% endif %}{% endfor %}`;
+  if (!blocksText.trim()) return [];
+  return blocksText.split(',').map(block => {
+    const [start, end] = block.trim().split('-');
+    return { start, end };
+  });
+}
+
+function timeToMinutes(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function renderSchedules() {
+  const blocks = getWorkingHourBlocks();
+  if (!blocks.length) return;
+
+  const allTimes = [];
+  for (const block of blocks) {
+    const startMin = timeToMinutes(block.start);
+    const endMin = timeToMinutes(block.end);
+    for (let min = startMin; min < endMin; min += 30) {
+      const h = Math.floor(min / 60).toString().padStart(2, '0');
+      const m = (min % 60).toString().padStart(2, '0');
+      allTimes.push(`${h}:${m}`);
+    }
+  }
+
+  const occupiedList = allTimes.filter(t => occupiedTimesMap[t]);
+  const availableList = allTimes.filter(t => !occupiedTimesMap[t]);
+
+  // Render occupied times with patient names
+  if (occupiedList.length > 0) {
+    let html = '';
+    for (const time of occupiedList) {
+      const data = occupiedTimesMap[time];
+      html += `<div class="flex items-center justify-between text-sm mb-2 p-2 bg-red-100 rounded">
+                 <span class="font-medium">❌ ${data.time_display}</span>
+                 <span class="text-gray-600 text-xs">${data.patient}</span>
+               </div>`;
+    }
+    document.getElementById('occupiedTimesList').innerHTML = html;
+    document.getElementById('occupiedSection').style.display = 'block';
+  } else {
+    document.getElementById('occupiedSection').style.display = 'none';
+  }
+
+  // Render available times as clickable slots
+  if (availableList.length > 0) {
+    let html = '';
+    for (const time of availableList) {
+      const [h, m] = time.split(':');
+      html += `<span class="time-slot available cursor-pointer hover:opacity-80 transition" onclick="selectTime('${time}')">${h}:${m}</span>`;
+    }
+    document.getElementById('availableTimesList').innerHTML = html;
+    document.getElementById('availableSection').style.display = 'block';
+  } else {
+    document.getElementById('availableSection').style.display = 'none';
+  }
+}
+
+function selectTime(time) {
+  document.getElementById('appointmentTimeInput').value = time;
+  validateTime();
+}
+
+function validateTime() {
+  const timeInput = document.getElementById('appointmentTimeInput').value;
+  const errorEl = document.getElementById('timeValidationError');
+  const successEl = document.getElementById('timeValidationSuccess');
+  const confirmBtn = document.getElementById('confirmTimeBtn');
+  const timeInputEl = document.getElementById('appointmentTimeInput');
+
+  if (!timeInput) {
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+    confirmBtn.disabled = true;
+    timeInputEl.classList.remove('ring-red-500', 'border-red-400');
+    timeInputEl.classList.add('border-gray-300');
+    return;
+  }
+
+  const isOccupied = !!occupiedTimesMap[timeInput];
+
+  if (isOccupied) {
+    errorEl.textContent = '⚠️ This time slot is already occupied. Please choose another available time.';
+    errorEl.style.display = 'block';
+    successEl.style.display = 'none';
+    confirmBtn.disabled = true;
+    timeInputEl.classList.remove('border-gray-300');
+    timeInputEl.classList.add('border-red-400', 'ring-red-500');
+  } else {
+    errorEl.style.display = 'none';
+    successEl.style.display = 'block';
+    confirmBtn.disabled = false;
+    timeInputEl.classList.remove('border-red-400', 'ring-red-500');
+    timeInputEl.classList.add('border-gray-300');
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', loadOccupiedTimes);
+
+// Validate when time input changes
+const timeInput = document.getElementById('appointmentTimeInput');
+if (timeInput) {
+  timeInput.addEventListener('change', validateTime);
+  timeInput.addEventListener('input', validateTime);
+}
+</script>
 {% endblock %}

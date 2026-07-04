@@ -431,3 +431,37 @@ def secretary_patient_records(request, patient_id):
 @role_required('secretary')
 def secretary_notifications(request):
     return redirect('/notifications/')
+
+
+@role_required('secretary')
+def get_occupied_times(request, pk):
+    """API endpoint returning occupied appointment times for a doctor on a specific date.
+    Returns JSON with: {'occupied_times': [{'time': 'HH:MM', 'patient': 'Name', 'status': 'Scheduled'}], ...}"""
+    doctor = _assigned_doctor(request.user)
+    appt = get_object_or_404(
+        Appointment, pk=pk, doctor=doctor, status='Pending Time Assignment'
+    )
+
+    occupied = Appointment.objects.filter(
+        doctor=appt.doctor,
+        appointment_date=appt.appointment_date,
+        appointment_time__isnull=False,
+        status__in=['Scheduled', 'Rescheduled'],
+    ).exclude(pk=appt.pk).select_related('patient').values_list(
+        'appointment_time', 'patient__first_name', 'patient__last_name', 'status'
+    ).order_by('appointment_time')
+
+    occupied_list = [
+        {
+            'time': time.strftime('%H:%M'),
+            'time_display': time.strftime('%I:%M %p'),
+            'patient': f"{first_name} {last_name}",
+            'status': status,
+        }
+        for time, first_name, last_name, status in occupied
+    ]
+
+    return JsonResponse({
+        'occupied_times': occupied_list,
+        'appointment_id': pk,
+    })
