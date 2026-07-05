@@ -1,0 +1,102 @@
+{% comment %}
+Main "My Schedule" page calendar — same visual language as the patient
+booking calendar. Each day is colored:
+  brand (filled) = the currently selected date (shown in the panel below)
+  emerald        = doctor already has one or more slots on this date
+  white          = open day, no slot yet, still pickable
+  faded gray     = a past date, not selectable
+
+Clicking a day does two things at once: an htmx GET that refreshes the
+day-detail panel below (#schedule-day-detail), and a small inline JS call
+that repaints just the day buttons so the newly clicked one shows as
+selected immediately without waiting on the request or re-fetching the
+whole grid. The prev/next month arrows go through the server (different
+month = different days to render) and re-render just this fragment,
+carrying the selected date along so the day-detail panel isn't disturbed.
+{% endcomment %}
+<div id="schedule-main-calendar-widget" class="bg-[#F5F7FA] rounded-2xl p-4">
+  <!-- Month header + nav -->
+  <div class="flex items-center justify-between mb-4">
+    <p class="font-semibold text-[#1F2937] text-sm">{{ calendar_month_name }} {{ calendar_year }}</p>
+    <div class="flex items-center gap-1">
+      <button type="button"
+              hx-get="{% url 'doctor:schedule_calendar_partial' %}?year={% if calendar_month == 1 %}{{ calendar_year|add:'-1' }}{% else %}{{ calendar_year }}{% endif %}&month={% if calendar_month == 1 %}12{% else %}{{ calendar_month|add:'-1' }}{% endif %}&date={{ selected_date }}"
+              hx-target="#schedule-main-calendar-widget" hx-swap="outerHTML"
+              class="size-7 flex items-center justify-center rounded-full bg-white text-[#4B5563] hover:bg-[#E5E7EB] transition cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button type="button"
+              hx-get="{% url 'doctor:schedule_calendar_partial' %}?year={% if calendar_month == 12 %}{{ calendar_year|add:'1' }}{% else %}{{ calendar_year }}{% endif %}&month={% if calendar_month == 12 %}1{% else %}{{ calendar_month|add:'1' }}{% endif %}&date={{ selected_date }}"
+              hx-target="#schedule-main-calendar-widget" hx-swap="outerHTML"
+              class="size-7 flex items-center justify-center rounded-full bg-white text-[#4B5563] hover:bg-[#E5E7EB] transition cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Weekday labels -->
+  <div class="grid grid-cols-7 gap-1 mb-1 text-center">
+    {% for label in "MTWTFSS" %}
+    <span class="text-[11px] font-medium text-[#6B7280]">{{ label }}</span>
+    {% endfor %}
+  </div>
+
+  <!-- Day grid -->
+  <div class="grid grid-cols-7 gap-1">
+    {% for week in calendar_weeks %}
+      {% for cell in week %}
+        {% if cell == None %}
+        <span class="aspect-square"></span>
+        {% elif cell.status == 'past' %}
+        <span class="aspect-square rounded-full text-sm flex items-center justify-center text-[#D1D5DB] cursor-not-allowed" title="Past date">
+          {{ cell.day }}
+        </span>
+        {% else %}
+        <button type="button"
+                data-schedule-date="{{ cell.date }}"
+                data-schedule-status="{{ cell.status }}"
+                onclick="mainScheduleSelectDay(this)"
+                hx-get="{% url 'doctor:schedule_day_detail' %}?date={{ cell.date }}"
+                hx-target="#schedule-day-detail" hx-swap="innerHTML"
+                class="schedule-main-day aspect-square rounded-full text-sm font-medium flex items-center justify-center transition cursor-pointer
+                  {% if cell.date == selected_date %}bg-brand-500 text-white
+                  {% elif cell.status == 'has_slots' %}bg-[#DCFCE7] text-[#16A34A] hover:bg-[#BBF7D0]
+                  {% else %}bg-white text-[#1F2937] hover:bg-[#E5E7EB]{% endif %}">
+          {{ cell.day }}
+        </button>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <!-- Legend -->
+  <div class="flex items-center gap-4 mt-3 pt-3 border-t border-[#E5E7EB] text-[11px] text-[#6B7280]">
+    <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#DCFCE7]"></span> Has slot(s)</span>
+    <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-brand-500"></span> Selected</span>
+  </div>
+</div>
+
+<script>
+  // Repaints the day buttons on click so the newly selected date shows
+  // filled-in immediately, without waiting for the day-detail htmx
+  // request to finish or re-fetching the whole grid. Mirrors the same
+  // inline-style approach used by the Add Slot modal's calendar, which
+  // sidesteps a repaint race between htmx's own request-state classes
+  // and freshly-added Tailwind utility classes on the same click.
+  function mainScheduleSelectDay(btn) {
+    document.querySelectorAll('.schedule-main-day').forEach((el) => {
+      if (el === btn) return;
+      el.style.backgroundColor = '';
+      el.style.color = '';
+      el.classList.remove('bg-brand-500', 'text-white');
+      if (el.getAttribute('data-schedule-status') === 'has_slots') {
+        el.classList.add('bg-[#DCFCE7]', 'text-[#16A34A]');
+      } else {
+        el.classList.add('bg-white', 'text-[#1F2937]');
+      }
+    });
+    btn.classList.remove('bg-white', 'text-[#1F2937]', 'bg-[#DCFCE7]', 'text-[#16A34A]');
+    btn.style.backgroundColor = '#2AAFC4';
+    btn.style.color = '#ffffff';
+  }
+</script>

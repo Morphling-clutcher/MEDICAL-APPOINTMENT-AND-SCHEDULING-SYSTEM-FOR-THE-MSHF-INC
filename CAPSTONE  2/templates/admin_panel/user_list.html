@@ -1,19 +1,23 @@
 {% extends "admin_panel/base_admin.html" %}
+{% load static %}
 {% block page_title %}Manage Users{% endblock %}
 
 {% block admin_content %}
-<div class="bg-white rounded-2xl shadow-soft p-6">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-    <div class="flex gap-2 flex-wrap">
-      <a href="?role=" class="px-3 py-1.5 rounded-full text-sm font-medium {% if not role_filter %}bg-red-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
-      <a href="?role=patient" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'patient' %}bg-red-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Patients</a>
-      <a href="?role=doctor" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'doctor' %}bg-red-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Doctors</a>
-      <a href="?role=secretary" class="px-3 py-1.5 rounded-full text-sm font-medium {% if role_filter == 'secretary' %}bg-red-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Secretaries</a>
-    </div>
-    <div class="flex gap-2">
-      <a hx-get="/admin-panel/users/create/?role=doctor" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 sm:flex-initial text-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition cursor-pointer">+ Doctor</a>
-      <a hx-get="/admin-panel/users/create/?role=secretary" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 sm:flex-initial text-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition cursor-pointer">+ Secretary</a>
-    </div>
+<div class="max-w-3xl mx-auto">
+
+  <h1 class="text-xl font-semibold text-gray-800 text-center mb-5">Manage Users</h1>
+
+  <!-- Tabs -->
+  <div class="flex items-center border-b border-gray-200 mb-5">
+    <a href="?role=" class="flex-1 text-center pb-3 text-sm font-medium border-b-2 transition-colors {% if not role_filter %}text-brand-600 font-semibold border-brand-500{% else %}text-gray-400 border-transparent hover:text-gray-600{% endif %}">All</a>
+    <a href="?role=patient" class="flex-1 text-center pb-3 text-sm font-medium border-b-2 transition-colors {% if role_filter == 'patient' %}text-brand-600 font-semibold border-brand-500{% else %}text-gray-400 border-transparent hover:text-gray-600{% endif %}">Patients</a>
+    <a href="?role=doctor" class="flex-1 text-center pb-3 text-sm font-medium border-b-2 transition-colors {% if role_filter == 'doctor' %}text-brand-600 font-semibold border-brand-500{% else %}text-gray-400 border-transparent hover:text-gray-600{% endif %}">Doctors</a>
+    <a href="?role=secretary" class="flex-1 text-center pb-3 text-sm font-medium border-b-2 transition-colors {% if role_filter == 'secretary' %}text-brand-600 font-semibold border-brand-500{% else %}text-gray-400 border-transparent hover:text-gray-600{% endif %}">Secretaries</a>
+  </div>
+
+  <div class="flex gap-2 mb-5">
+    <a hx-get="/admin-panel/users/create/?role=doctor" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 text-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition cursor-pointer">+ Doctor</a>
+    <a hx-get="/admin-panel/users/create/?role=secretary" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 text-center px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition cursor-pointer">+ Secretary</a>
   </div>
 
   {% if users %}
@@ -24,12 +28,8 @@
       </thead>
       <tbody class="divide-y divide-gray-100">
         {% for user in users %}
-        <tr>
-          <td class="py-3 font-medium text-gray-800">
-            <a hx-get="{% url 'admin_panel:user_detail' pk=user.pk %}" hx-target="#modal-root" hx-swap="innerHTML" class="hover:underline cursor-pointer">
-              {{ user.get_full_name|default:user.username }}
-            </a>
-          </td>
+        <tr hx-get="{% url 'admin_panel:user_detail' pk=user.pk %}" hx-target="#modal-root" hx-swap="innerHTML" class="cursor-pointer hover:bg-gray-50">
+          <td class="py-3 font-medium text-gray-800">{{ user.get_full_name|default:user.username }}</td>
           <td class="py-3 text-gray-500">{{ user.username }}</td>
           <td class="py-3">
             <span class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize
@@ -49,8 +49,8 @@
           </td>
           <td class="py-3">
             <div class="flex gap-1">
-              <a hx-get="/admin-panel/users/{{ user.pk }}/edit/" hx-target="#modal-root" hx-swap="innerHTML" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 cursor-pointer">Edit</a>
-              <a hx-get="/admin-panel/users/{{ user.pk }}/delete/" hx-target="#modal-root" hx-swap="innerHTML" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200 cursor-pointer">Delete</a>
+              <a hx-get="/admin-panel/users/{{ user.pk }}/edit/" hx-target="#modal-root" hx-swap="innerHTML" onclick="event.stopPropagation()" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 cursor-pointer">Edit</a>
+              <a hx-get="/admin-panel/users/{{ user.pk }}/delete/" hx-target="#modal-root" hx-swap="innerHTML" onclick="event.stopPropagation()" class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200 cursor-pointer">Delete</a>
             </div>
           </td>
         </tr>
@@ -60,32 +60,50 @@
   </div>
   <div class="flex md:hidden flex-col gap-3">
     {% for user in users %}
-    <div class="border border-gray-200 rounded-xl p-4">
-      <div class="flex items-start justify-between gap-3">
-        <a hx-get="{% url 'admin_panel:user_detail' pk=user.pk %}" hx-target="#modal-root" hx-swap="innerHTML" class="font-medium text-gray-800 text-sm truncate hover:underline cursor-pointer">
-          {{ user.get_full_name|default:user.username }}
-        </a>
-        <span class="shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold capitalize
-          {% if user.role == 'patient' %}bg-blue-100 text-blue-700
-          {% elif user.role == 'doctor' %}bg-green-100 text-green-600
-          {% else %}bg-purple-100 text-purple-600{% endif %}">
-          {{ user.role }}
-        </span>
+    <div hx-get="{% url 'admin_panel:user_detail' pk=user.pk %}" hx-target="#modal-root" hx-swap="innerHTML" class="bg-white rounded-2xl border border-gray-200 p-3 shadow-soft-sm cursor-pointer hover:bg-gray-50">
+      <div class="flex items-center gap-3">
+        {% if user.profile_picture %}
+        <img src="{{ user.profile_picture.url }}" alt="" class="size-14 rounded-xl object-cover shrink-0">
+        {% else %}
+        <img src="{% static 'img/default-avatar.svg' %}" alt="" class="size-14 rounded-xl object-cover shrink-0 bg-gray-100 p-2.5">
+        {% endif %}
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <span class="font-semibold text-gray-800 text-sm truncate">{{ user.get_full_name|default:user.username }}</span>
+            <span class="shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold capitalize
+              {% if user.role == 'patient' %}bg-blue-100 text-blue-700
+              {% elif user.role == 'doctor' %}bg-green-100 text-green-600
+              {% else %}bg-purple-100 text-purple-600{% endif %}">
+              {{ user.role }}
+            </span>
+          </div>
+          <p class="text-xs text-gray-500 truncate mt-0.5">
+            {% if user.role == 'doctor' %}
+              {{ user.doctor_profile.specialization|default:"General Practice" }}
+            {% elif user.role == 'secretary' %}
+              {% if user.secretary_profile.assigned_doctor %}Assigned to Dr. {{ user.secretary_profile.assigned_doctor.get_full_name }}{% else %}Unassigned{% endif %}
+            {% else %}
+              {{ user.email }}
+            {% endif %}
+          </p>
+          <div class="flex items-center gap-1.5 mt-1">
+            {% if user.is_active %}
+            <span class="size-1.5 rounded-full bg-green-500"></span>
+            <span class="text-green-600 text-xs font-semibold">Active</span>
+            {% else %}
+            <span class="size-1.5 rounded-full bg-red-400"></span>
+            <span class="text-red-500 text-xs font-semibold">Inactive</span>
+            {% endif %}
+          </div>
+        </div>
       </div>
       <div class="mt-3 bg-gray-50 rounded-xl p-3 text-sm space-y-1.5">
         <div class="flex justify-between"><span class="text-gray-500">Username</span><span class="font-medium text-gray-800">{{ user.username }}</span></div>
         <div class="flex justify-between gap-3"><span class="text-gray-500 shrink-0">Email</span><span class="font-medium text-gray-800 text-right truncate">{{ user.email }}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Status</span>
-          {% if user.is_active %}
-          <span class="text-green-600 text-xs font-semibold">Active</span>
-          {% else %}
-          <span class="text-red-500 text-xs font-semibold">Inactive</span>
-          {% endif %}
-        </div>
       </div>
       <div class="mt-3 flex gap-2">
-        <a hx-get="/admin-panel/users/{{ user.pk }}/edit/" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 text-center px-3 py-2 bg-blue-100 text-blue-700 rounded-xl text-xs font-medium hover:bg-blue-200 cursor-pointer">Edit</a>
-        <a hx-get="/admin-panel/users/{{ user.pk }}/delete/" hx-target="#modal-root" hx-swap="innerHTML" class="flex-1 text-center px-3 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-medium hover:bg-red-200 cursor-pointer">Delete</a>
+        <a hx-get="/admin-panel/users/{{ user.pk }}/edit/" hx-target="#modal-root" hx-swap="innerHTML" onclick="event.stopPropagation()" class="flex-1 text-center px-3 py-2 bg-blue-100 text-blue-700 rounded-xl text-xs font-medium hover:bg-blue-200 cursor-pointer">Edit</a>
+        <a hx-get="/admin-panel/users/{{ user.pk }}/delete/" hx-target="#modal-root" hx-swap="innerHTML" onclick="event.stopPropagation()" class="flex-1 text-center px-3 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-medium hover:bg-red-200 cursor-pointer">Delete</a>
       </div>
     </div>
     {% endfor %}

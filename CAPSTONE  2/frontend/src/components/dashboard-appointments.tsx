@@ -9,14 +9,14 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
-	Table,
-	TableBody,
-	TableCaption,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+	Item,
+	ItemActions,
+	ItemContent,
+	ItemDescription,
+	ItemGroup,
+	ItemMedia,
+	ItemTitle,
+} from "@/components/ui/item";
 import { formatDate } from "@/components/formater";
 import type { AppointmentRow } from "@/types";
 
@@ -58,83 +58,70 @@ export function DashboardAppointments({
 	rows: AppointmentRow[];
 	href?: string;
 }) {
-	const hasSecondary = rows.some((r) => r.secondary);
-
 	return (
 		<Card className="animate-fade-up border-border/70">
-			<CardHeader>
-				<CardTitle className="text-[#16404C]">{title}</CardTitle>
-				<CardDescription>
-					{rows.length} {rows.length === 1 ? "appointment" : "appointments"}
-				</CardDescription>
+			<CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+				<div className="flex flex-col space-y-1.5">
+					<CardTitle className="text-[#16404C]">{title}</CardTitle>
+					<CardDescription>
+						{rows.length} {rows.length === 1 ? "appointment" : "appointments"}
+					</CardDescription>
+				</div>
+				{href && rows.length > 0 && (
+					<a
+						href={href}
+						className="text-sm font-medium text-[#2AAFC4] hover:underline"
+					>
+						View all
+					</a>
+				)}
 			</CardHeader>
-			<CardContent className="px-0 pb-2">
+			<CardContent>
 				{rows.length === 0 ? (
 					<p className="py-8 text-center text-muted-foreground">
 						No appointments.
 					</p>
 				) : (
-					<Table className="border-t">
-						<TableCaption className="sr-only">
-							{title}, with patient or doctor, date, and status.
-						</TableCaption>
-						<TableHeader>
-							<TableRow>
-								<TableHead className="pl-6">Name</TableHead>
-								{hasSecondary ? <TableHead>Detail</TableHead> : null}
-								<TableHead>Date</TableHead>
-								<TableHead className="pr-6 text-right">Status</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{rows.map((r, i) => (
-								<TableRow className="h-14" key={i}>
-									<TableCell className="pl-6 font-medium">
-										<div className="flex items-center gap-3">
-											<span
-												className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-												style={{
-													backgroundColor:
-														avatarPalette[i % avatarPalette.length],
-												}}
-											>
-												{initials(r.primary)}
-											</span>
-											{r.primary}
-										</div>
-									</TableCell>
-									{hasSecondary ? (
-										<TableCell className="text-muted-foreground text-xs">
-											{r.secondary}
-										</TableCell>
-									) : null}
-									<TableCell className="text-muted-foreground text-xs tabular-nums">
+					<ItemGroup className="gap-1">
+						{rows.map((r, i) => (
+							<Item key={i} size="sm" className="rounded-xl hover:bg-accent">
+								<ItemMedia
+									className="size-8 shrink-0 items-center justify-center rounded-full border-0 text-xs font-semibold text-white"
+									style={{
+										backgroundColor: avatarPalette[i % avatarPalette.length],
+									}}
+								>
+									{initials(r.primary)}
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{r.primary}</ItemTitle>
+									<ItemDescription className="line-clamp-1">
+										{r.secondary ? `${r.secondary} · ` : ""}
 										{formatDate(r.date, "day-month")}
 										{r.time ? ` · ${r.time}` : ""}
-									</TableCell>
-									<TableCell className="pr-6 text-right">
-										<Badge
-											className={
-												statusStyles[r.status] ??
-												"border-border text-foreground"
-											}
-										>
-											{r.status === "Pending Reschedule" && (
-												<span className="relative mr-1.5 flex size-1.5">
-													<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
-													<span className="relative inline-flex size-1.5 rounded-full bg-violet-500" />
-												</span>
-											)}
-											{r.status !== "Pending Reschedule" && (
-												<span className="mr-1.5 inline-flex size-1.5 rounded-full bg-current opacity-60" />
-											)}
-											{r.status}
-										</Badge>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+									</ItemDescription>
+								</ItemContent>
+								<ItemActions>
+									<Badge
+										className={
+											statusStyles[r.status] ?? "border-border text-foreground"
+										}
+									>
+										{r.status === "Pending Reschedule" && (
+											<span className="relative mr-1.5 flex size-1.5">
+												<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
+												<span className="relative inline-flex size-1.5 rounded-full bg-violet-500" />
+											</span>
+										)}
+										{r.status !== "Pending Reschedule" && (
+											<span className="mr-1.5 inline-flex size-1.5 rounded-full bg-current opacity-60" />
+										)}
+										{r.status}
+									</Badge>
+								</ItemActions>
+							</Item>
+						))}
+					</ItemGroup>
 				)}
 			</CardContent>
 		</Card>

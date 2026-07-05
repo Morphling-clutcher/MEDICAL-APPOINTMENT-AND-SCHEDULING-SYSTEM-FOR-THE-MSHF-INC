@@ -172,13 +172,15 @@ def user_delete(request, pk):
 
 @role_required('admin')
 def admin_appointment_list(request):
-    status_filter = request.GET.get('status', '')
-    qs = Appointment.objects.all().select_related('patient', 'doctor', 'secretary')
-    if status_filter:
-        qs = qs.filter(status=status_filter)
+    qs = Appointment.objects.all().select_related('patient', 'doctor', 'secretary').order_by('-appointment_date', 'appointment_time')
     return render(request, 'admin_panel/appointment_list.html', {
-        'appointments': qs.order_by('-appointment_date', 'appointment_time'),
-        'status_filter': status_filter,
+        # "Scheduled" bucket covers every appointment that hasn't finished or
+        # been cancelled yet (Pending Assignment, Scheduled, Confirmed,
+        # Rescheduled, Pending Reschedule) — mirrors the patient-facing
+        # "Upcoming" tab.
+        'scheduled': qs.exclude(status__in=['Completed', 'Cancelled']),
+        'completed': qs.filter(status='Completed'),
+        'cancelled': qs.filter(status='Cancelled'),
     })
 
 

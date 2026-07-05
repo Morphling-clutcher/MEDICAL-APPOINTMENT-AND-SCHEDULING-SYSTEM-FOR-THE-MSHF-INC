@@ -2,13 +2,16 @@
 {% block page_title %}My Feedback{% endblock %}
 
 {% block patient_content %}
-<div class="space-y-6">
+<div class="max-w-2xl mx-auto">
+
+  <h1 class="text-xl font-semibold text-[#1F2937] text-center mb-5">My Feedback</h1>
+
   {% if to_review %}
-  <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-5">
     <h3 class="font-semibold text-amber-800 mb-3">Leave Feedback</h3>
     <div class="space-y-2">
       {% for appt in to_review %}
-      <div class="flex items-center justify-between py-2 border-b border-amber-100">
+      <div class="flex items-center justify-between py-2 border-b border-amber-100 last:border-b-0">
         <div>
           <p class="font-medium text-gray-800">Dr. {{ appt.doctor.get_full_name }}</p>
           <p class="text-sm text-gray-500">{{ appt.appointment_date|date:"F j, Y" }}</p>
@@ -23,31 +26,30 @@
   </div>
   {% endif %}
 
-  <div class="bg-white rounded-2xl shadow-soft p-6">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">My Feedback History</h2>
+  <div class="space-y-3">
     {% if feedbacks %}
-    <div class="divide-y divide-gray-100">
       {% for fb in feedbacks %}
       <div hx-get="{% url 'feedback:detail' pk=fb.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
-           class="flex items-center justify-between gap-4 py-3 cursor-pointer hover:bg-gray-50 rounded-xl px-2">
-        <div class="min-w-0">
-          {% if fb.appointment %}
-          <p class="font-semibold text-gray-800">Dr. {{ fb.appointment.doctor.get_full_name }}</p>
-          {% else %}
-          <p class="font-semibold text-gray-800">General Feedback</p>
-          {% endif %}
-          <p class="text-sm text-gray-500 truncate">{{ fb.comment|truncatechars:80|default:"No comment" }}</p>
-        </div>
-        <div class="flex gap-0.5 flex-shrink-0">
-          {% for i in "12345" %}
-          <span class="text-sm {% if forloop.counter <= fb.rating %}text-amber-400{% else %}text-gray-200{% endif %}">★</span>
-          {% endfor %}
+           class="bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-soft-sm cursor-pointer hover:bg-gray-50">
+        <div class="flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            {% if fb.appointment %}
+            <p class="font-semibold text-[#1F2937]">Dr. {{ fb.appointment.doctor.get_full_name }}</p>
+            {% else %}
+            <p class="font-semibold text-[#1F2937]">General Feedback</p>
+            {% endif %}
+            <p class="text-sm text-[#6B7280] truncate">{{ fb.comment|truncatechars:80|default:"No comment" }}</p>
+          </div>
+          <div class="flex gap-0.5 flex-shrink-0">
+            {% for i in "12345" %}
+            <span class="text-sm {% if forloop.counter <= fb.rating %}text-amber-400{% else %}text-gray-200{% endif %}">★</span>
+            {% endfor %}
+          </div>
         </div>
       </div>
       {% endfor %}
-    </div>
     {% else %}
-    <p class="text-gray-400 text-center py-8">No feedback submitted yet.</p>
+    <p class="text-[#6B7280] text-center py-10">No feedback submitted yet.</p>
     {% endif %}
   </div>
 </div>

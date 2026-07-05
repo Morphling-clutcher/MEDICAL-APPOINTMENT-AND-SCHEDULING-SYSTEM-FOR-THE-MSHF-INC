@@ -5,41 +5,18 @@
 <div class="max-w-3xl space-y-4">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <p class="text-gray-500 text-sm">Manage your consultation schedule by date. Appointments will only be bookable during these hours.</p>
-    <a hx-get="/doctor/schedule/add/" 
-       hx-target="#modal-root" 
+    <a hx-get="{% url 'doctor:schedule_add' %}?date={{ selected_date }}"
+       hx-target="#modal-root"
        hx-swap="innerHTML"
        class="shrink-0 whitespace-nowrap text-center px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition cursor-pointer">
       + Add Slot
     </a>
   </div>
 
-  <div class="bg-white rounded-2xl shadow-soft">
-    {% if schedules %}
-    <div class="divide-y divide-gray-100">
-      {% for s in schedules %}
-      <div class="flex items-center justify-between px-6 py-4">
-        <div>
-          <p class="font-semibold text-gray-800">{{ s.specific_date|date:"D, M j, Y" }}</p>
-          <p class="text-sm text-gray-500">{{ s.start_time|time:"g:i A" }} &ndash; {{ s.end_time|time:"g:i A" }}</p>
-        </div>
-        <div class="flex gap-2">
-          <a hx-get="/doctor/schedule/{{ s.pk }}/edit/" 
-             hx-target="#modal-root" 
-             hx-swap="innerHTML"
-             class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition cursor-pointer">Edit</a>
-          <a hx-get="/doctor/schedule/{{ s.pk }}/delete/" 
-             hx-target="#modal-root" 
-             hx-swap="innerHTML"
-             class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs font-medium hover:bg-red-200 transition cursor-pointer">Delete</a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-12 text-gray-400">
-      <p>No schedule slots yet. Add one to allow patients to book appointments.</p>
-    </div>
-    {% endif %}
+  {% include "doctor/_schedule_main_calendar_fragment.html" %}
+
+  <div id="schedule-day-detail">
+    {% include "doctor/_schedule_day_detail.html" with date_str=selected_date date_display=selected_date_display slots=selected_slots %}
   </div>
 </div>
 {% endblock %}

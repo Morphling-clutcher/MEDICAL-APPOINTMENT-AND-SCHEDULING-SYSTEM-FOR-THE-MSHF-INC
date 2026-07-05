@@ -1,7 +1,5 @@
-import { DashboardAppointments } from "@/components/dashboard-appointments";
 import { TrendChart } from "@/components/sales-chart";
 import { DashboardStats } from "@/components/stats";
-import { QuickActions } from "@/components/quick-actions";
 import { Categories } from "@/components/categories";
 import { OurDoctors } from "@/components/our-doctors";
 import { DoctorSearchBar } from "@/components/doctor-search-bar";
@@ -51,25 +49,6 @@ export function Dashboard({
 
 			{live.doctors && (
 				<OurDoctors doctors={live.doctors} href={live.doctorsHref} />
-			)}
-
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				<DashboardAppointments
-					title={live.appointmentsTitle}
-					rows={live.appointments}
-					href={live.appointmentsHref}
-				/>
-				{live.pastAppointments && (
-					<DashboardAppointments
-						title={live.pastAppointmentsTitle || ""}
-						rows={live.pastAppointments}
-						href={live.pastAppointmentsHref}
-					/>
-				)}
-			</div>
-
-			{live.quickActions && live.quickActions.length > 0 && (
-				<QuickActions actions={live.quickActions} />
 			)}
 		</div>
 	);

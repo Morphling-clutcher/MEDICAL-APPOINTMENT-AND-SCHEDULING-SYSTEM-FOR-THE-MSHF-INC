@@ -1,10 +1,13 @@
 {% extends "admin_panel/base_admin.html" %}
 {% block page_title %}Feedback & Logs{% endblock %}
 {% block admin_content %}
-<div class="space-y-4">
+<div class="max-w-3xl mx-auto">
+
+  <h1 class="text-xl font-semibold text-gray-800 text-center mb-5">Patient Feedback</h1>
+
   {% if avg_rating %}
-  <div class="bg-white rounded-2xl shadow-soft p-5 flex items-center gap-4">
-    <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-soft-sm p-5 flex items-center gap-4 mb-5">
+    <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
       <span class="text-amber-600 font-semibold text-xl">★</span>
     </div>
     <div>
@@ -14,28 +17,27 @@
   </div>
   {% endif %}
 
-  <div class="bg-white rounded-2xl shadow-soft p-6">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Patient Feedback</h2>
+  <div class="space-y-3">
     {% if feedbacks %}
-    <div class="divide-y divide-gray-100">
       {% for fb in feedbacks %}
       <div hx-get="{% url 'admin_panel:feedback_detail' pk=fb.pk %}" hx-target="#modal-root" hx-swap="innerHTML"
-           class="flex items-center justify-between gap-4 py-3 cursor-pointer hover:bg-gray-50 rounded-xl px-2">
-        <div class="min-w-0">
-          <p class="font-semibold text-gray-800">{{ fb.patient.get_full_name }}</p>
-          <p class="text-sm text-gray-500 truncate">{{ fb.comment|truncatechars:80|default:"No comment" }}</p>
-        </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <div class="flex gap-0.5">
-            {% for i in "12345" %}
-            <span class="text-sm {% if forloop.counter <= fb.rating %}text-amber-400{% else %}text-gray-200{% endif %}">★</span>
-            {% endfor %}
+           class="bg-white rounded-2xl border border-gray-200 shadow-soft-sm p-4 cursor-pointer hover:bg-gray-50">
+        <div class="flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-800">{{ fb.patient.get_full_name }}</p>
+            <p class="text-sm text-gray-500 truncate">{{ fb.comment|truncatechars:80|default:"No comment" }}</p>
           </div>
-          <p class="text-xs text-gray-400">{{ fb.date_submitted|date:"M j, Y" }}</p>
+          <div class="flex items-center gap-3 flex-shrink-0">
+            <div class="flex gap-0.5">
+              {% for i in "12345" %}
+              <span class="text-sm {% if forloop.counter <= fb.rating %}text-amber-400{% else %}text-gray-200{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            <p class="text-xs text-gray-400">{{ fb.date_submitted|date:"M j, Y" }}</p>
+          </div>
         </div>
       </div>
       {% endfor %}
-    </div>
     {% else %}
     <p class="text-gray-400 text-center py-10">No feedback submitted yet.</p>
     {% endif %}

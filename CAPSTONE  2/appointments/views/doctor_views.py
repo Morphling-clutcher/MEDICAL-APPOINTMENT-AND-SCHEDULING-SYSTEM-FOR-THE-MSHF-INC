@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count
@@ -174,8 +175,73 @@ def doctor_dashboard_data(request):
 
 @role_required('doctor')
 def schedule_list(request):
-    schedules = Schedule.objects.filter(doctor=request.user).order_by('specific_date', 'start_time')
-    return render(request, 'doctor/schedule_list.html', {'schedules': schedules})
+    """Main 'My Schedule' page — now a calendar (mirrors the patient
+    booking calendar look) instead of a flat list. Clicking a date shows
+    that date's slots (with Edit/Delete) in the panel below via htmx,
+    without leaving the page."""
+    selected_date_str = request.GET.get('date') or date.today().isoformat()
+    year, month = _resolve_calendar_month(request, selected_date_str)
+    calendar_weeks = _compute_schedule_month(request.user, year, month)
+
+    selected_slots = []
+    try:
+        the_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        selected_slots = list(
+            Schedule.objects.filter(doctor=request.user, specific_date=the_date).order_by('start_time')
+        )
+    except ValueError:
+        pass
+
+    return render(request, 'doctor/schedule_list.html', {
+        'calendar_weeks': calendar_weeks,
+        'calendar_year': year, 'calendar_month': month,
+        'calendar_month_name': calendar_module.month_name[month],
+        'today_iso': date.today().isoformat(),
+        'selected_date': selected_date_str,
+        'selected_date_display': _format_date_str(selected_date_str),
+        'selected_slots': selected_slots,
+    })
+
+
+@role_required('doctor')
+def schedule_calendar_partial(request):
+    """Re-renders just the calendar grid on the main schedule page when the
+    doctor clicks the prev/next month arrows. The day-detail panel below
+    is untouched by this — it's a separate htmx target."""
+    selected_date_str = request.GET.get('date', '')
+    year, month = _resolve_calendar_month(request, selected_date_str)
+    calendar_weeks = _compute_schedule_month(request.user, year, month)
+    return render(request, 'doctor/_schedule_main_calendar_fragment.html', {
+        'calendar_weeks': calendar_weeks,
+        'calendar_year': year, 'calendar_month': month,
+        'calendar_month_name': calendar_module.month_name[month],
+        'today_iso': date.today().isoformat(),
+        'selected_date': selected_date_str,
+    })
+
+
+@role_required('doctor')
+def schedule_day_detail(request):
+    """Action-capable version of the day-info panel: fetched whenever the
+    doctor clicks a date on the main schedule calendar. Unlike
+    _schedule_day_info.html (read-only, used inside the Add Slot modal),
+    this one lets the doctor edit or remove each slot right from the
+    panel, and add a new one already scoped to this date."""
+    date_str = request.GET.get('date', '')
+    slots = []
+    if date_str:
+        try:
+            the_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            slots = list(
+                Schedule.objects.filter(doctor=request.user, specific_date=the_date).order_by('start_time')
+            )
+        except ValueError:
+            pass
+    return render(request, 'doctor/_schedule_day_detail.html', {
+        'date_str': date_str,
+        'date_display': _format_date_str(date_str),
+        'slots': slots,
+    })
 
 
 @role_required('doctor')
@@ -266,9 +332,9 @@ def schedule_add(request):
             if saved_dates:
                 if request.htmx:
                     response = render(request, 'doctor/_schedule_modal.html', {'form': MultiDateScheduleForm(), 'action': 'Add'})
-                    response['HX-Redirect'] = '/doctor/schedule/'
+                    response['HX-Redirect'] = f'/doctor/schedule/?date={saved_dates[-1].isoformat()}'
                     return response
-                return redirect('doctor:schedule_list')
+                return redirect(f"{reverse('doctor:schedule_list')}?date={saved_dates[-1].isoformat()}")
             # Nothing saved at all — fall through and re-show the form
             # with the same dates still selected so the doctor can pick a
             # different time without having to re-select every day.
@@ -357,9 +423,9 @@ def schedule_edit(request, pk):
             messages.success(request, 'Schedule updated.')
             if request.htmx:
                 response = render(request, 'doctor/_schedule_modal.html', {'form': form, 'action': 'Edit'})
-                response['HX-Redirect'] = '/doctor/schedule/'
+                response['HX-Redirect'] = f'/doctor/schedule/?date={updated.specific_date.isoformat()}'
                 return response
-            return redirect('doctor:schedule_list')
+            return redirect(f"{reverse('doctor:schedule_list')}?date={updated.specific_date.isoformat()}")
 
     context = {
         'form': form, 'action': 'Edit', 'schedule': schedule,
@@ -417,9 +483,9 @@ def schedule_delete(request, pk):
             # valid HTML — its content is never shown to the user.
             from django.http import HttpResponse
             response = HttpResponse('')
-            response['HX-Redirect'] = '/doctor/schedule/'
+            response['HX-Redirect'] = f'/doctor/schedule/?date={removed_date.isoformat()}'
             return response
-        return redirect('doctor:schedule_list')
+        return redirect(f"{reverse('doctor:schedule_list')}?date={removed_date.isoformat()}")
     
     if request.htmx:
         return render(request, 'doctor/_schedule_delete_modal.html', {'schedule': schedule})
