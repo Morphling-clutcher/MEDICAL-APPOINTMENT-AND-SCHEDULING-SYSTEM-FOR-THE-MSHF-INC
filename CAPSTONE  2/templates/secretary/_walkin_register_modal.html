@@ -1,0 +1,62 @@
+{# Modal for walk-in patient registration — non-extending partial #}
+<div id="modal-overlay" class="fixed inset-0 bg-black/50 z-40 transition-opacity opacity-0" style="transition-duration: 300ms;" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+  <div class="fixed inset-0 z-40 overflow-y-auto flex items-end md:items-center justify-center">
+    <div class="modal-panel w-full h-full md:!h-auto md:w-full max-w-2xl md:mx-4 md:my-8 translate-y-full md:!translate-y-0 transition-transform" style="transition-duration: 300ms;">
+      <div class="bg-white h-full md:!h-auto max-h-full rounded-t-2xl md:!rounded-2xl shadow-soft-lg flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+          <div>
+            <h2 id="modal-title" class="text-lg font-semibold text-gray-800">Register Walk-In Patient</h2>
+            <p class="text-gray-500 text-sm mt-1">Quickly record their details — no login account is created.</p>
+          </div>
+          <button type="button" onclick="closeModal()" aria-label="Close" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 text-2xl leading-none">&times;</button>
+        </div>
+        <!-- Content -->
+        <form method="post" action="{% url 'secretary:walkin_register' %}"
+              hx-post="{% url 'secretary:walkin_register' %}"
+              hx-target="#modal-root" hx-swap="innerHTML"
+              class="px-6 py-6 space-y-4 flex-1 overflow-y-auto" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+          {% if not assigned_doctor %}
+          <div class="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl p-3 text-sm">
+            You are not currently assigned to a doctor, so a walk-in visit cannot be checked in. Please contact the administrator.
+          </div>
+          {% endif %}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for field in form %}
+            <div class="{% if field.name == 'address' or field.name == 'reason' %}sm:col-span-2{% endif %}">
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>{% endif %}
+              {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button type="submit" {% if not assigned_doctor %}disabled{% endif %}
+                    class="flex-1 bg-purple-600 text-white font-semibold py-3 rounded-xl hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Register &amp; Check In
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 border border-gray-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #modal-overlay.open {
+    opacity: 1 !important;
+  }
+  #modal-overlay.open .modal-panel {
+    transform: translateY(0) !important;
+  }
+</style>

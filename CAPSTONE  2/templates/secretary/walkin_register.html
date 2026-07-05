@@ -1,0 +1,38 @@
+{% extends "secretary/base_secretary.html" %}
+{% block page_title %}Register Walk-In Patient{% endblock %}
+
+{% block secretary_content %}
+<div class="max-w-3xl">
+  <div class="bg-white rounded-2xl shadow-soft p-8">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">Register Walk-In Patient</h2>
+    <p class="text-gray-500 text-sm mb-6">Quickly record a walk-in patient's details — no account login is created. This checks them in with Dr. {{ assigned_doctor.get_full_name|default:"your assigned doctor" }} and lets you take their vitals.</p>
+    {% if not assigned_doctor %}
+    <div class="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl p-3 text-sm mb-4">
+      You are not currently assigned to a doctor, so a walk-in visit cannot be checked in. Please contact the administrator.
+    </div>
+    {% endif %}
+    <form method="post" class="space-y-4" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for field in form %}
+        <div class="{% if field.name == 'address' or field.name == 'reason' %}sm:col-span-2{% endif %}">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>{% endif %}
+          {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" {% if not assigned_doctor %}disabled{% endif %}
+              class="w-full bg-purple-600 text-white font-semibold py-3 rounded-xl hover:bg-purple-700 transition mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        Register &amp; Check In
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

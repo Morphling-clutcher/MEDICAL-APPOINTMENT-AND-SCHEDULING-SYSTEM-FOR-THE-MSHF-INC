@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from datetime import date
+from datetime import date, datetime
 from django.db.models import Q
 from accounts.decorators import role_required
 from appointments.models import Appointment, Schedule
 from appointments.forms import AssignTimeForm
-from accounts.models import CustomUser
+from accounts.models import CustomUser, PatientProfile
 from notifications.email_utils import (
-    send_cancellation_email, send_time_assigned_email
+    send_cancellation_email, send_time_assigned_email, send_booking_confirmation_email
 )
 from notifications.models import Notification
 
@@ -53,6 +54,7 @@ def _build_secretary_dashboard_data(request):
         ],
         'quickActions': [
             {'title': 'Appointments', 'description': 'Approve or cancel requests', 'href': '/secretary/appointments/'},
+            {'title': 'Walk-In Registration', 'description': 'Register a walk-in patient', 'href': '/secretary/walk-in/register/'},
             {'title': 'Doctor Profile', 'description': "View your doctor's info & availability", 'href': '/secretary/schedules/'},
             {'title': 'Patients', 'description': 'View patient list', 'href': '/secretary/patients/'},
         ],
@@ -266,13 +268,13 @@ def appointment_confirm(request, pk):
                 f"You have been checked in for your appointment with Dr. {appt.doctor.get_full_name()} on "
                 f"{appt.appointment_date.strftime('%B %d, %Y')} at "
                 f"{appt.appointment_time.strftime('%I:%M %p') if appt.appointment_time else 'the scheduled time'}. "
-                f"Please proceed for your consultation.")
-        messages.success(request, 'Patient confirmed as arrived.')
+                f"Please proceed for vital signs assessment.")
+        messages.success(request, 'Patient confirmed as arrived. Vital signs assessment can now begin.')
         if request.htmx:
             response = render(request, 'secretary/_appointment_confirm_modal.html', {'appt': appt, 'action': 'confirm'})
-            response['HX-Redirect'] = '/secretary/appointments/'
+            response['HX-Redirect'] = reverse('secretary:vitals_add', kwargs={'patient_id': appt.patient.pk})
             return response
-        return redirect('secretary:appointment_list')
+        return redirect('secretary:vitals_add', patient_id=appt.patient.pk)
     if request.htmx:
         return render(request, 'secretary/_appointment_confirm_modal.html', {'appt': appt, 'action': 'confirm'})
     return render(request, 'secretary/appointment_confirm_action.html', {
@@ -414,6 +416,80 @@ def appointment_reschedule_reject(request, pk):
     return render(request, 'secretary/reschedule_confirm_action.html', {'appointment': appt, 'action': 'reject'})
 
 
+@role_required('secretary')
+def walkin_register(request):
+    from accounts.forms import WalkInPatientForm
+    doctor = _assigned_doctor(request.user)
+    form = WalkInPatientForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        if not doctor:
+            messages.error(request, 'You are not assigned to a doctor, so a walk-in visit cannot be recorded. Contact the administrator.')
+        else:
+            with transaction.atomic():
+                user = form.save()
+                now = datetime.now()
+                # A walk-in conflicting with another patient's exact
+                # appointment time for this doctor is unlikely (down to
+                # the minute) but not impossible — same conflict check
+                # used everywhere else a time gets assigned.
+                conflict = Appointment.objects.select_for_update().filter(
+                    doctor=doctor,
+                    appointment_date=now.date(),
+                    appointment_time=now.time().replace(second=0, microsecond=0),
+                    status__in=['Scheduled', 'Rescheduled'],
+                ).exists()
+                appointment = Appointment.objects.create(
+                    patient=user,
+                    doctor=doctor,
+                    secretary=request.user,
+                    appointment_date=now.date(),
+                    appointment_time=None if conflict else now.time().replace(second=0, microsecond=0),
+                    status='Pending Assignment' if conflict else 'Scheduled',
+                    reason=form.cleaned_data['reason'],
+                )
+            if conflict:
+                messages.success(
+                    request,
+                    f'Walk-in patient {user.get_full_name()} registered. '
+                    f"Dr. {doctor.get_full_name()} already has another appointment at this exact minute — "
+                    f"assign a time for this visit from the appointments list."
+                )
+            else:
+                try:
+                    send_booking_confirmation_email(appointment)
+                except Exception:
+                    pass
+                _notify(doctor,
+                        f"Walk-in: {user.get_full_name()} is here now for "
+                        f"{appointment.reason}.")
+                messages.success(request, f'Walk-in patient {user.get_full_name()} registered and checked in with Dr. {doctor.get_full_name()}.')
+            if request.htmx:
+                response = render(request, 'secretary/_walkin_register_modal.html', {'form': WalkInPatientForm()})
+                response['HX-Redirect'] = reverse('secretary:vitals_add', kwargs={'patient_id': user.pk})
+                return response
+            return redirect('secretary:vitals_add', patient_id=user.pk)
+    if request.htmx:
+        return render(request, 'secretary/_walkin_register_modal.html', {'form': form, 'assigned_doctor': doctor})
+    return render(request, 'secretary/walkin_register.html', {'form': form, 'assigned_doctor': doctor})
+
+
+@role_required('secretary')
+def vitals_add(request, patient_id):
+    patient = get_object_or_404(CustomUser, pk=patient_id, role='patient')
+    from records.forms import VitalSignForm
+    from records.models import VitalSign
+    form = VitalSignForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        vital = form.save(commit=False)
+        vital.patient   = patient
+        vital.secretary = request.user
+        vital.save()
+        messages.success(request, 'Vital signs recorded.')
+        return redirect('secretary:patient_records', patient_id=patient.pk)
+    vitals = VitalSign.objects.filter(patient=patient).order_by('-date_taken')
+    return render(request, 'secretary/vitals_form.html', {
+        'form': form, 'patient': patient, 'vitals': vitals
+    })
 
 
 @role_required('secretary')
