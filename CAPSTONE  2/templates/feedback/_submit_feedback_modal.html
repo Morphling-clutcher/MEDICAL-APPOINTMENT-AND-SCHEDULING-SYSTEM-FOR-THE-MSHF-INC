@@ -54,14 +54,14 @@
      :has() targets the checked star's own icon; the sibling combinator
      reaches every label that comes after it in markup (= every lower-
      numbered, visually-earlier star) to fill those too. */
-  #FEF3C7ck-star-rating .star-radio-label input { position: absolute; opacity: 0; width: 0; height: 0; }
-  #FEF3C7ck-star-rating .star-radio-label:has(input:checked) .star-icon,
-  #FEF3C7ck-star-rating .star-radio-label:has(input:checked) ~ .star-radio-label .star-icon,
-  #FEF3C7ck-star-rating .star-radio-label:hover .star-icon,
-  #FEF3C7ck-star-rating .star-radio-label:hover ~ .star-radio-label .star-icon {
+  #feedback-star-rating .star-radio-label input { position: absolute; opacity: 0; width: 0; height: 0; }
+  #feedback-star-rating .star-radio-label:has(input:checked) .star-icon,
+  #feedback-star-rating .star-radio-label:has(input:checked) ~ .star-radio-label .star-icon,
+  #feedback-star-rating .star-radio-label:hover .star-icon,
+  #feedback-star-rating .star-radio-label:hover ~ .star-radio-label .star-icon {
     color: #FBBF24;
   }
-  #FEF3C7ck-star-rating .star-radio-label:has(input:checked) .star-icon {
+  #feedback-star-rating .star-radio-label:has(input:checked) .star-icon {
     transform: scale(1.08);
   }
 </style>
