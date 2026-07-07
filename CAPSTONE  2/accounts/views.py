@@ -29,7 +29,10 @@ def login_view(request):
             login(request, user)
             return _role_redirect(user)
         messages.error(request, 'Invalid username or password.')
-    return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html', {
+        'register_form': PatientRegistrationForm(),
+        'active_panel': 'login',
+    })
 
 
 def logout_view(request):
@@ -48,7 +51,10 @@ def register_view(request):
         _notify_admins(f"New patient account created: {user.get_full_name()} ({user.username}).")
         messages.success(request, 'Account created! Welcome to MSHFI.')
         return redirect('patient:dashboard')
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/register.html', {
+        'register_form': form,
+        'active_panel': 'register',
+    })
 
 
 PROFILE_VIEW_TEMPLATES = {

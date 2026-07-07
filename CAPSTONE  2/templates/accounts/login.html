@@ -4,69 +4,289 @@
 
 {% block extra_head %}
 <style>
-  .hp-field input {
-    background-color: transparent !important;
+  .hp-field input,
+  .hp-field select {
+    background-color: #F5F7FA !important;
     border: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
+    border-radius: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
+    font-size: 0.875rem !important;
+    color: #1F2937 !important;
   }
-  .hp-field input:focus {
-    box-shadow: none !important;
+  .hp-field input:focus,
+  .hp-field select:focus {
+    box-shadow: 0 0 0 3px rgba(31, 77, 17, 0.18) !important;
   }
   .hp-field input::placeholder {
-    color: #9CA3AF !important;
+    color: #6B7280 !important;
+  }
+
+  /* ================= Auth shell: sliding sign-in / sign-up card ================= */
+  .auth-shell {
+    position: relative;
+    width: 100%;
+    min-height: 620px;
+    border-radius: 2.5rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(31,77,17,0.22), 0 24px 60px rgba(15,23,42,0.22);
+  }
+
+  .auth-form-panel {
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 3rem;
+    overflow-y: auto;
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+  }
+  .auth-form-inner { width: 100%; max-width: 340px; }
+
+  .sign-in-panel { transform: translateX(0); opacity: 1; z-index: 5; }
+  .sign-up-panel { transform: translateX(0); opacity: 0; z-index: 1; }
+
+  .auth-shell[data-active="register"] .sign-in-panel { transform: translateX(100%); opacity: 0; z-index: 1; }
+  .auth-shell[data-active="register"] .sign-up-panel { transform: translateX(100%); opacity: 1; z-index: 5; }
+
+  .auth-overlay-container {
+    position: absolute;
+    top: 0; left: 50%;
+    width: 50%; height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out;
+    z-index: 10;
+  }
+  .auth-shell[data-active="register"] .auth-overlay-container { transform: translateX(-100%); }
+
+  .auth-overlay {
+    position: relative;
+    left: -100%;
+    width: 200%; height: 100%;
+    background: linear-gradient(140deg, #2F6318 0%, #1F4D11 45%, #12300A 100%);
+    background-size: 220% 220%;
+    animation: authGradientShift 10s ease-in-out infinite;
+    color: #fff;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+  }
+  .auth-shell[data-active="register"] .auth-overlay { transform: translateX(50%); }
+
+  @keyframes authGradientShift {
+    0%   { background-position: 0% 30%; }
+    50%  { background-position: 100% 70%; }
+    100% { background-position: 0% 30%; }
+  }
+
+  .auth-overlay-panel {
+    position: absolute;
+    top: 0; width: 50%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    transition: transform 0.6s ease-in-out;
+  }
+  .overlay-left  { left: 0;  transform: translateX(-20%); }
+  .overlay-right { right: 0; transform: translateX(0); }
+  .auth-shell[data-active="register"] .overlay-left  { transform: translateX(0); }
+  .auth-shell[data-active="register"] .overlay-right { transform: translateX(20%); }
+
+  .auth-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(1px);
+    pointer-events: none;
+    animation: authBlobFloat 7s ease-in-out infinite;
+  }
+  @keyframes authBlobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(0, -16px) scale(1.06); }
+  }
+
+  .auth-card-enter { animation: authCardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes authCardEnter {
+    0%   { opacity: 0; transform: translateY(14px) scale(0.985); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 767.98px) {
+    .auth-shell { min-height: 0; }
+    .auth-form-panel {
+      position: static;
+      width: 100%;
+      padding: 2rem 1.5rem;
+      display: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      max-height: 80vh;
+    }
+    .auth-shell[data-active="login"] .sign-in-panel { display: flex !important; }
+    .auth-shell[data-active="register"] .sign-up-panel { display: flex !important; }
+    .auth-overlay-container { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-overlay, .auth-blob, .auth-card-enter { animation: none !important; }
+    .auth-form-panel, .auth-overlay-container, .auth-overlay, .auth-overlay-panel { transition: none !important; }
   }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="relative min-h-screen flex items-center justify-center px-6 py-12 bg-cover bg-center"
+<div class="relative min-h-screen flex items-center justify-center px-4 py-10 bg-cover bg-center"
      style="background-image: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(240,247,244,0.4)), url('/static/img/login-bg.png');">
-  <div class="w-full max-w-sm animate-fade-up">
 
-    <div class="flex flex-col items-center mb-8">
-      <div class="flex size-16 items-center justify-center rounded-3xl bg-brand-500 text-white shadow-soft mb-4">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3a1 1 0 00-1 1v5a1 1 0 01-1 1H4a1 1 0 00-1 1v2a1 1 0 001 1h5a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h5a1 1 0 001-1v-2a1 1 0 00-1-1h-5a1 1 0 01-1-1V4a1 1 0 00-1-1h-2z"/></svg>
+  <div class="w-full max-w-4xl auth-card-enter">
+    <div class="auth-shell" id="authShell" data-active="{{ active_panel|default:'login' }}">
+
+      <!-- Sign in panel -->
+      <div class="auth-form-panel sign-in-panel">
+        <div class="auth-form-inner">
+          <div class="flex flex-col items-center mb-6">
+            <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-soft mb-4">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3a1 1 0 00-1 1v5a1 1 0 01-1 1H4a1 1 0 00-1 1v2a1 1 0 001 1h5a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h5a1 1 0 001-1v-2a1 1 0 00-1-1h-5a1 1 0 01-1-1V4a1 1 0 00-1-1h-2z"/></svg>
+            </div>
+            <h1 class="text-2xl font-semibold text-ink">Welcome back</h1>
+            <p class="text-ink-soft text-sm mt-1 text-center">Sign in to MSHFI Medical Appointment System</p>
+          </div>
+
+          <form method="post" action="{% url 'accounts:login' %}" class="space-y-3 hp-field">
+            {% csrf_token %}
+            <div class="flex items-center gap-2.5 bg-softgray rounded-xl px-4 py-3.5 border border-transparent focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500/15 transition">
+              <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <input type="text" name="username" required
+                     class="flex-1 bg-transparent border-0 p-0 text-sm text-ink placeholder-gray-400 focus:outline-none focus:ring-0"
+                     placeholder="Username" />
+            </div>
+
+            <div class="flex items-center gap-2.5 bg-softgray rounded-xl px-4 py-3.5 border border-transparent focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500/15 transition">
+              <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm6-2V8a6 6 0 10-12 0v1m-1 0h14a1 1 0 011 1v9a2 2 0 01-2 2H6a2 2 0 01-2-2v-9a1 1 0 011-1z"/>
+              </svg>
+              <input type="password" name="password" required
+                     class="flex-1 bg-transparent border-0 p-0 text-sm text-ink placeholder-gray-400 focus:outline-none focus:ring-0"
+                     placeholder="Password" />
+            </div>
+
+            <button type="submit" data-loading-text="Signing in…"
+                    class="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-3.5 px-4 rounded-xl text-sm transition-all duration-200 hover:shadow-soft-sm hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed !mt-5">
+              Sign in
+            </button>
+          </form>
+
+          <p class="text-center text-sm text-ink-soft mt-5 md:hidden">
+            New patient? <a href="#" class="auth-switch-link text-brand-600 font-medium hover:underline" data-target="register">Create an account</a>
+          </p>
+          <p class="text-center mt-3">
+            <a href="/" class="text-xs text-gray-400 hover:text-ink-soft transition-colors">&larr; Back to home</a>
+          </p>
+        </div>
       </div>
-      <h1 class="text-2xl font-semibold text-ink">Welcome back</h1>
-      <p class="text-ink-soft text-sm mt-1">Sign in to MSHFI Medical Appointment System</p>
-    </div>
 
-    <div class="bg-white rounded-3xl shadow-soft p-6 sm:p-7">
-      <form method="post" class="space-y-3 hp-field">
-        {% csrf_token %}
+      <!-- Sign up panel -->
+      <div class="auth-form-panel sign-up-panel">
+        <div class="auth-form-inner" style="max-width: 420px;">
+          <div class="flex flex-col items-center mb-5">
+            <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-soft mb-4">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3a1 1 0 00-1 1v5a1 1 0 01-1 1H4a1 1 0 00-1 1v2a1 1 0 001 1h5a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h5a1 1 0 001-1v-2a1 1 0 00-1-1h-5a1 1 0 01-1-1V4a1 1 0 00-1-1h-2z"/></svg>
+            </div>
+            <h1 class="text-2xl font-semibold text-ink">Create your account</h1>
+            <p class="text-ink-soft text-sm mt-1 text-center">Book appointments online in minutes</p>
+          </div>
 
-        <div class="flex items-center gap-2.5 bg-softgray rounded-xl px-4 py-3.5 border border-transparent focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500/15 transition">
-          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-          <input type="text" name="username" required autofocus
-                 class="flex-1 bg-transparent border-0 p-0 text-sm text-ink placeholder-gray-400 focus:outline-none focus:ring-0"
-                 placeholder="Username" />
+          <form method="post" action="{% url 'accounts:register' %}" class="space-y-3 hp-field" novalidate>
+            {% csrf_token %}
+            {% if register_form.non_field_errors %}
+            <div class="bg-[#FEF2F2] text-[#DC2626] rounded-xl p-3 text-sm">
+              {% for error in register_form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {% for field in register_form %}
+              <div class="{% if field.name == 'address' %}sm:col-span-2{% endif %}">
+                {% if field.field.widget.input_type == 'select' or field.name == 'gender' %}
+                  {{ field }}
+                {% else %}
+                  <input type="{{ field.field.widget.input_type }}"
+                         name="{{ field.html_name }}"
+                         id="{{ field.auto_id }}"
+                         {% if field.value %}value="{{ field.value }}"{% endif %}
+                         {% if field.field.required %}required{% endif %}
+                         class="w-full bg-[#F5F7FA] border-0 rounded-xl px-4 py-3.5 text-sm text-[#1F2937] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                         placeholder="{{ field.label }}" />
+                {% endif %}
+                {% if field.errors %}
+                <p class="text-[#DC2626] text-xs mt-1 ml-1">{{ field.errors.0 }}</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" data-loading-text="Creating account…"
+                    class="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-3.5 px-4 rounded-xl text-sm transition-all duration-200 hover:shadow-soft-sm hover:-translate-y-0.5 mt-5 disabled:opacity-60 disabled:cursor-not-allowed">
+              Create account
+            </button>
+          </form>
+
+          <p class="text-center text-sm text-[#6B7280] mt-5 md:hidden">
+            Already have an account? <a href="#" class="auth-switch-link text-[#1F2937] font-medium hover:underline" data-target="login">Sign in</a>
+          </p>
         </div>
+      </div>
 
-        <div class="flex items-center gap-2.5 bg-softgray rounded-xl px-4 py-3.5 border border-transparent focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500/15 transition">
-          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm6-2V8a6 6 0 10-12 0v1m-1 0h14a1 1 0 011 1v9a2 2 0 01-2 2H6a2 2 0 01-2-2v-9a1 1 0 011-1z"/>
-          </svg>
-          <input type="password" name="password" required
-                 class="flex-1 bg-transparent border-0 p-0 text-sm text-ink placeholder-gray-400 focus:outline-none focus:ring-0"
-                 placeholder="Password" />
+      <!-- Sliding gradient overlay (desktop only) -->
+      <div class="auth-overlay-container">
+        <div class="auth-overlay">
+          <span class="auth-blob" style="width:150px;height:150px;top:-40px;left:-30px;background:rgba(244,226,59,0.16);animation-delay:0s;"></span>
+          <span class="auth-blob" style="width:110px;height:110px;bottom:-25px;right:-15px;background:rgba(255,255,255,0.10);animation-delay:2.3s;"></span>
+
+          <div class="auth-overlay-panel overlay-left">
+            <div class="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3a1 1 0 00-1 1v5a1 1 0 01-1 1H4a1 1 0 00-1 1v2a1 1 0 001 1h5a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h5a1 1 0 001-1v-2a1 1 0 00-1-1h-5a1 1 0 01-1-1V4a1 1 0 00-1-1h-2z"/></svg>
+            </div>
+            <h2 class="text-xl font-semibold mb-3 text-white">Welcome back!</h2>
+            <p class="text-white/80 text-sm leading-relaxed mb-6 max-w-[220px]">Already have an account? Sign in to manage your appointments.</p>
+            <button type="button" class="auth-switch-link inline-block border-2 border-white/70 hover:bg-white hover:text-brand-600 text-white font-medium text-sm px-8 py-3 rounded-xl transition-all duration-300" data-target="login">
+              Sign in
+            </button>
+          </div>
+
+          <div class="auth-overlay-panel overlay-right">
+            <div class="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3a1 1 0 00-1 1v5a1 1 0 01-1 1H4a1 1 0 00-1 1v2a1 1 0 001 1h5a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h5a1 1 0 001-1v-2a1 1 0 00-1-1h-5a1 1 0 01-1-1V4a1 1 0 00-1-1h-2z"/></svg>
+            </div>
+            <h2 class="text-xl font-semibold mb-3 text-white">New here?</h2>
+            <p class="text-white/80 text-sm leading-relaxed mb-6 max-w-[220px]">Create an account to book appointments and manage your visits online.</p>
+            <button type="button" class="auth-switch-link inline-block border-2 border-white/70 hover:bg-white hover:text-brand-600 text-white font-medium text-sm px-8 py-3 rounded-xl transition-all duration-300" data-target="register">
+              Create account
+            </button>
+          </div>
         </div>
+      </div>
 
-        <button type="submit" data-loading-text="Signing in…"
-                class="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-3.5 px-4 rounded-xl text-sm transition-all duration-200 hover:shadow-soft-sm disabled:opacity-60 disabled:cursor-not-allowed !mt-5">
-          Sign in
-        </button>
-      </form>
     </div>
-
-    <p class="text-center text-sm text-ink-soft mt-6">
-      New patient? <a href="{% url 'accounts:register' %}" class="text-brand-600 font-medium hover:text-brand-700 hover:underline">Create an account</a>
-    </p>
-    <p class="text-center mt-3">
-      <a href="/" class="text-xs text-gray-400 hover:text-ink-soft transition-colors">&larr; Back to home</a>
-    </p>
   </div>
 </div>
+
+<script>
+(function () {
+  var shell = document.getElementById('authShell');
+  if (!shell) return;
+  document.querySelectorAll('.auth-switch-link').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      shell.setAttribute('data-active', el.getAttribute('data-target'));
+    });
+  });
+})();
+</script>
 {% endblock %}
