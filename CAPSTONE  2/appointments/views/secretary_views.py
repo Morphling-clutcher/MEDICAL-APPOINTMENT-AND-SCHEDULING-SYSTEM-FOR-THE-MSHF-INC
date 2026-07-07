@@ -54,7 +54,6 @@ def _build_secretary_dashboard_data(request):
         ],
         'quickActions': [
             {'title': 'Appointments', 'description': 'Approve or cancel requests', 'href': '/secretary/appointments/'},
-            {'title': 'Walk-In Registration', 'description': 'Register a walk-in patient', 'href': '/secretary/walk-in/register/'},
             {'title': 'Doctor Profile', 'description': "View your doctor's info & availability", 'href': '/secretary/schedules/'},
             {'title': 'Patients', 'description': 'View patient list', 'href': '/secretary/patients/'},
         ],
@@ -414,63 +413,6 @@ def appointment_reschedule_reject(request, pk):
     if request.htmx:
         return render(request, 'secretary/_reschedule_action_modal.html', {'appointment': appt, 'action': 'reject'})
     return render(request, 'secretary/reschedule_confirm_action.html', {'appointment': appt, 'action': 'reject'})
-
-
-@role_required('secretary')
-def walkin_register(request):
-    from accounts.forms import WalkInPatientForm
-    doctor = _assigned_doctor(request.user)
-    form = WalkInPatientForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        if not doctor:
-            messages.error(request, 'You are not assigned to a doctor, so a walk-in visit cannot be recorded. Contact the administrator.')
-        else:
-            with transaction.atomic():
-                user = form.save()
-                now = datetime.now()
-                # A walk-in conflicting with another patient's exact
-                # appointment time for this doctor is unlikely (down to
-                # the minute) but not impossible — same conflict check
-                # used everywhere else a time gets assigned.
-                conflict = Appointment.objects.select_for_update().filter(
-                    doctor=doctor,
-                    appointment_date=now.date(),
-                    appointment_time=now.time().replace(second=0, microsecond=0),
-                    status__in=['Scheduled', 'Rescheduled'],
-                ).exists()
-                appointment = Appointment.objects.create(
-                    patient=user,
-                    doctor=doctor,
-                    secretary=request.user,
-                    appointment_date=now.date(),
-                    appointment_time=None if conflict else now.time().replace(second=0, microsecond=0),
-                    status='Pending Assignment' if conflict else 'Scheduled',
-                    reason=form.cleaned_data['reason'],
-                )
-            if conflict:
-                messages.success(
-                    request,
-                    f'Walk-in patient {user.get_full_name()} registered. '
-                    f"Dr. {doctor.get_full_name()} already has another appointment at this exact minute — "
-                    f"assign a time for this visit from the appointments list."
-                )
-            else:
-                try:
-                    send_booking_confirmation_email(appointment)
-                except Exception:
-                    pass
-                _notify(doctor,
-                        f"Walk-in: {user.get_full_name()} is here now for "
-                        f"{appointment.reason}.")
-                messages.success(request, f'Walk-in patient {user.get_full_name()} registered and checked in with Dr. {doctor.get_full_name()}.')
-            if request.htmx:
-                response = render(request, 'secretary/_walkin_register_modal.html', {'form': WalkInPatientForm()})
-                response['HX-Redirect'] = reverse('secretary:vitals_add', kwargs={'patient_id': user.pk})
-                return response
-            return redirect('secretary:vitals_add', patient_id=user.pk)
-    if request.htmx:
-        return render(request, 'secretary/_walkin_register_modal.html', {'form': form, 'assigned_doctor': doctor})
-    return render(request, 'secretary/walkin_register.html', {'form': form, 'assigned_doctor': doctor})
 
 
 @role_required('secretary')
