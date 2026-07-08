@@ -1,12 +1,12 @@
 {# Modal for adding/editing a schedule slot — non-extending partial #}
 <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-40 transition-opacity opacity-0" style="transition-duration: 300ms;" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-  <div class="fixed inset-0 z-40 overflow-y-auto flex items-end md:items-center justify-center">
-    <div class="modal-panel w-full h-full md:!h-auto md:w-full max-w-md md:mx-4 md:my-8 translate-y-full md:!translate-y-0 transition-transform" style="transition-duration: 300ms;">
-      <div class="bg-white h-full md:!h-auto max-h-full rounded-t-2xl md:!rounded-2xl shadow-soft-lg flex flex-col">
+  <div class="fixed inset-0 z-40 overflow-y-auto flex items-end justify-center">
+    <div class="modal-panel w-full h-full max-w-md translate-y-full transition-transform" style="transition-duration: 300ms;">
+      <div class="bg-white h-full max-h-full rounded-t-2xl shadow-soft-lg flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
           <h2 id="modal-title" class="text-lg font-semibold text-[#1F2937]">{{ action }} Schedule Slot</h2>
-          <button type="button" onclick="closeModal()" aria-label="Close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 text-2xl leading-none">&times;</button>
+          <button type="button" onclick="closeModal()" aria-label="Close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200 bg-gray-100 text-2xl leading-none">&times;</button>
         </div>
         <!-- Content -->
         <div class="px-6 py-6 space-y-4 flex-1 overflow-y-auto">
@@ -102,5 +102,10 @@
   }
   #modal-overlay.open .modal-panel {
     transform: translateY(0) !important;
+  }
+  @media (min-width: 768px) {
+    #modal-overlay > div { align-items: center; }
+    .modal-panel { height: auto; margin: 2rem; transform: none; }
+    .modal-panel > div { height: auto; max-height: 85vh; border-radius: 1.5rem; }
   }
 </style>
