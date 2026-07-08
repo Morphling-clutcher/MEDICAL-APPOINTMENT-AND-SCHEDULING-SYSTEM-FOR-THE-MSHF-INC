@@ -1,8 +1,15 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse, Http404
 from accounts.decorators import role_required
 from accounts.models import CustomUser
 from .models import MedicalRecords, VitalSign, Prescription
+
+
+@role_required('patient', 'doctor', 'secretary', 'admin')
+def records_redirect(request):
+    if request.user.role == 'patient':
+        return redirect('records:patient_records', patient_id=request.user.pk)
+    return redirect('landing')
 
 
 @role_required('patient', 'doctor', 'secretary', 'admin')

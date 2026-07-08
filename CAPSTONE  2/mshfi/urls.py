@@ -25,6 +25,14 @@ def privacy_view(request):
     return render(request, 'privacy.html')
 
 
+def custom_404_view(request, exception=None):
+    return render(request, '404.html', status=404)
+
+
+def custom_500_view(request):
+    return render(request, '500.html', status=500)
+
+
 urlpatterns = [
     path('',               landing_view,                 name='landing'),
     path('terms/',         terms_view,                   name='terms'),
@@ -42,3 +50,6 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'mshfi.urls.custom_404_view'
+handler500 = 'mshfi.urls.custom_500_view'

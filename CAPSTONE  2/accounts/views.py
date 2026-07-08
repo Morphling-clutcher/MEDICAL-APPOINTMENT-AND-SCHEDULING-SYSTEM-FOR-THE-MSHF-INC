@@ -10,6 +10,11 @@ from .decorators import role_required
 from notifications.models import Notification
 
 
+def signup_redirect(request):
+    """Redirect /signup/ to /register/ for backwards compatibility"""
+    return redirect('accounts:register')
+
+
 def _notify_admins(message):
     """New patient self-registrations happen with nobody on staff in the
     loop, unlike doctor/secretary accounts which admins create themselves.
