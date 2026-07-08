@@ -94,7 +94,7 @@
     {% elif appt.status == 'Confirmed' %}
     <a href="/doctor/appointments/{{ appt.pk }}/complete/"
        class="flex-1 text-center bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">
-      Complete
+      Complete Visit
     </a>
     {% elif appt.status == 'Completed' %}
     <a href="/doctor/appointments/{{ appt.pk }}/results/"

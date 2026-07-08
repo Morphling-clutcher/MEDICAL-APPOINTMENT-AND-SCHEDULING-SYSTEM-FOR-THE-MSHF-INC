@@ -724,8 +724,10 @@ def get_occupied_times(request, pk):
 
 @role_required('doctor')
 def appointment_accept(request, pk):
-    appt = get_object_or_404(Appointment, pk=pk, doctor=request.user, status='Scheduled')
+    appt = get_object_or_404(Appointment, pk=pk, doctor=request.user, status__in=['Scheduled', 'Rescheduled'])
     if request.method == 'POST':
+        appt.status = 'Confirmed'
+        appt.save()
         _notify(appt.patient,
                 f"Dr. {request.user.get_full_name()} has confirmed your appointment on "
                 f"{appt.appointment_date.strftime('%B %d, %Y')} at {appt.appointment_time.strftime('%I:%M %p')}.")
@@ -881,7 +883,7 @@ def appointment_reschedule(request, pk):
 
 @role_required('doctor')
 def appointment_complete(request, pk):
-    appt = get_object_or_404(Appointment, pk=pk, doctor=request.user, status__in=['Scheduled', 'Rescheduled'])
+    appt = get_object_or_404(Appointment, pk=pk, doctor=request.user, status__in=['Scheduled', 'Rescheduled', 'Confirmed'])
     if request.method == 'POST':
         appt.status = 'Completed'
         appt.save()
