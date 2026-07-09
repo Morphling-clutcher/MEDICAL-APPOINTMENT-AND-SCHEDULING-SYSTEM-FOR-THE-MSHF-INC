@@ -4,14 +4,14 @@
   <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
     <div class="flex justify-between"><span class="text-gray-500">Doctor</span><span class="font-medium">Dr. {{ appt.doctor.get_full_name }}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Secretary</span><span class="font-medium">{{ appt.secretary.get_full_name|default:"—" }}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Booked By</span><span class="font-medium">{{ appt.patient.get_full_name }}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Contact</span><span class="font-medium">{{ appt.patient.email }}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Date</span><span class="font-medium">{{ appt.appointment_date|date:"F j, Y" }}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Time</span><span class="font-medium">{% if appt.appointment_time %}{{ appt.appointment_time|time:"g:i A" }}{% else %}<span class="text-amber-600">To be confirmed</span>{% endif %}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-medium">{{ appt.status }}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Reason</span><span class="font-medium">{{ appt.reason|default:"—" }}</span></div>
   </div>
-  {# Patient identity is hidden from the admin for data privacy — only the
-     doctor and the assigned secretary can view patient details. #}
-  <p class="text-xs text-gray-400 italic">Patient details are hidden for data privacy.</p>
+  <p class="text-xs text-gray-400 italic">Clinical details are restricted to the doctor and secretary only.</p>
   <div class="flex gap-3 pt-2">
     <button type="button" onclick="closeModal()" class="flex-1 border border-gray-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition">
       Close
