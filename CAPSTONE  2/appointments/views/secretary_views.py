@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from datetime import date, datetime
-from django.db.models import Q
+from datetime import date, datetime, timedelta
+from django.db.models import Q, Count
 from accounts.decorators import role_required
 from appointments.models import Appointment, Schedule
 from appointments.forms import AssignTimeForm
@@ -34,12 +34,30 @@ def _build_secretary_dashboard_data(request):
     total_today = today_appts.count()
     pending_time_count = today_appts.filter(status='Pending Assignment').count() if doctor else 0
 
+    trend_start = date.today() - timedelta(days=29)
+    counts_by_date = {
+        row['appointment_date']: row['c']
+        for row in Appointment.objects.filter(
+            doctor=doctor,
+            appointment_date__gte=trend_start,
+            appointment_date__lte=date.today(),
+            status__in=['Scheduled', 'Confirmed', 'Rescheduled']
+        ).values('appointment_date').annotate(c=Count('id'))
+    } if doctor else {}
+    trend = [
+        {'date': (trend_start + timedelta(days=i)).isoformat(),
+         'value': counts_by_date.get(trend_start + timedelta(days=i), 0)}
+        for i in range(30)
+    ]
+
     return {
         'userName': request.user.get_full_name() or request.user.username,
         'stats': [
             {'label': "Today's Appointments", 'value': total_today},
             {'label': "Awaiting Time Assignment", 'value': pending_time_count},
         ],
+        'trend': trend,
+        'trendLabel': 'Appointments',
         'appointmentsTitle': "Today's Appointments",
         'appointmentsHref': '/secretary/appointments/',
         'appointments': [

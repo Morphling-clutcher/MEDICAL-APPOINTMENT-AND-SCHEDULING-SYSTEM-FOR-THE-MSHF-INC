@@ -12,13 +12,6 @@
   @media (min-width: 768px) {
     #react-dashboard-root[data-role="admin"] > div > div:first-child { display: none; }
   }
-  /* Move the "All Appointments by date" trend chart to the very bottom of
-     the dashboard. The dashboard root is a flex column, so pushing the
-     chart's order works on every screen size. */
-  #react-dashboard-root[data-role="admin"] > div > *:has(.recharts-responsive-container),
-  #react-dashboard-root[data-role="admin"] > div > *:has([class*="recharts"]) {
-    order: 99;
-  }
 </style>
 <div id="react-dashboard-root"></div>
 {% vite_asset 'frontend/src/main-admin.tsx' %}
