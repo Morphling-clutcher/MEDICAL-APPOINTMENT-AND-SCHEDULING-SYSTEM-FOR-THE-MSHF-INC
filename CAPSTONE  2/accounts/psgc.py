@@ -38,6 +38,46 @@ def is_valid_barangay(municipality, barangay):
     return barangay in municipalities().get(municipality, [])
 
 
+@lru_cache(maxsize=1)
+def ph_provinces_cities():
+    """{province: [city/municipality, ...]} for the ENTIRE Philippines —
+    used only by the Place of Birth picker. Unlike the address picker
+    (which is deliberately locked to the clinic's own service area,
+    Lanao del Sur), a patient can have been born anywhere in the
+    country, so this one isn't restricted to a single province.
+    No barangay level here — a birthplace is recorded as just
+    city/municipality + province, never down to the barangay/street.
+    """
+    path = Path(settings.BASE_DIR) / 'static' / 'data' / 'ph_provinces_cities.json'
+    with open(path, encoding='utf-8') as f:
+        return json.load(f)
+
+
+def is_valid_ph_province(name):
+    return name in ph_provinces_cities()
+
+
+def is_valid_ph_city(province, city):
+    return city in ph_provinces_cities().get(province, [])
+
+
+def validate_place_of_birth_data(data, required=False):
+    """Shared clean() helper for the Place of Birth picker (nationwide
+    province + city/municipality — no barangay/street needed).
+    """
+    prov = (data.get('pob_province') or '').strip()
+    city = (data.get('pob_city') or '').strip()
+    if not prov and not city:
+        if required:
+            return 'Please choose your place of birth (province and city/municipality).'
+        return None
+    if not is_valid_ph_province(prov):
+        return 'Please choose a valid province.'
+    if not is_valid_ph_city(prov, city):
+        return 'Please choose a valid city/municipality for %s.' % prov
+    return None
+
+
 def validate_picker_data(data, forms, required=False):
     """Shared clean() helper for forms that use the address picker.
 

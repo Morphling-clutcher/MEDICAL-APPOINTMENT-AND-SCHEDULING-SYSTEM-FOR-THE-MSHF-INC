@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 import re
 from .models import CustomUser, PatientProfile, DoctorProfile, SecretaryProfile
 from .validators import validate_ph_mobile_number, normalize_ph_mobile_number
-from .psgc import validate_picker_data
+from .psgc import validate_picker_data, validate_place_of_birth_data
 
 
 def _slugify_name_part(value):
@@ -110,7 +110,7 @@ class PatientRegistrationForm(UserCreationForm):
     contact_number = forms.CharField(max_length=20, required=False, label='Contact Number')
     gender         = forms.ChoiceField(choices=[('', '-- Select --')] + PatientProfile.GENDER_CHOICES, required=False)
     date_of_birth  = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    place_of_birth = forms.CharField(max_length=150, required=False)
+    place_of_birth = forms.CharField(max_length=150, required=True)
     address        = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=True, label='Address')
     guardian       = forms.CharField(max_length=150, required=False, label='Guardian (optional)')
 
@@ -124,6 +124,9 @@ class PatientRegistrationForm(UserCreationForm):
         err = validate_picker_data(self.data, forms, required=True)
         if err:
             self.add_error('address', err)
+        pob_err = validate_place_of_birth_data(self.data, required=True)
+        if pob_err:
+            self.add_error('place_of_birth', pob_err)
         return cleaned
 
     def __init__(self, *args, **kwargs):
@@ -133,6 +136,16 @@ class PatientRegistrationForm(UserCreationForm):
         t = date.today()
         latest = t.replace(year=t.year - 16)
         self.fields['date_of_birth'].widget.attrs['max'] = latest.isoformat()
+
+        # This is a brand-new-account form living on the SAME page as the
+        # login form (sliding sign-in/sign-up card). Django's default
+        # UsernameField sets autocomplete="username", which tells the
+        # browser "offer a REMEMBERED username here" — exactly the wrong
+        # signal for a signup field, and the reason a just-logged-out
+        # user's saved username/password could reappear here. Override it.
+        self.fields['username'].widget.attrs['autocomplete'] = 'off'
+        self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
 
     def clean_date_of_birth(self):
         dob = self.cleaned_data.get('date_of_birth')

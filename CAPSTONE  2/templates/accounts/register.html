@@ -261,6 +261,8 @@
               <div class="{% if field.name == 'address' %}sm:col-span-2{% endif %}">
                 {% if field.name == 'address' %}
                   {% include "components/_address_picker.html" with initial=field.value errors=field.errors %}
+                {% elif field.name == 'place_of_birth' %}
+                  {% include "components/_place_of_birth_picker.html" with initial=field.value errors=field.errors %}
                 {% elif field.field.widget.input_type == 'select' or field.name == 'gender' %}
                   {{ field }}
                 {% else %}
@@ -269,6 +271,7 @@
                          id="{{ field.auto_id }}"
                          {% if field.value %}value="{{ field.value }}"{% endif %}
                          {% if field.field.required %}required{% endif %}
+                         autocomplete="{{ field.field.widget.attrs.autocomplete|default:'' }}"
                          class="w-full bg-[#F5F7FA] border-0 rounded-xl px-4 py-3.5 text-sm text-[#1F2937] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                          placeholder="{{ field.label }}" />
                 {% endif %}
@@ -334,6 +337,27 @@
       e.preventDefault();
       shell.setAttribute('data-active', el.getAttribute('data-target'));
     });
+  });
+})();
+
+(function () {
+  // Some browsers ignore autocomplete="off"/"new-password" and still
+  // inject a previously-saved credential (e.g. right after logging out
+  // of another account on this same page) into the Create Account
+  // form's own username/password fields. If the server never rendered
+  // a value="..." attribute for a field, any value present shortly
+  // after load can only be the browser's own autofill — safe to clear.
+  // (Django's PasswordInput never renders value="..." at all, so the
+  // two password fields are always safe to clear this way.)
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      ['id_username', 'id_password1', 'id_password2'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && el.getAttribute('value') === null && el.value) {
+          el.value = '';
+        }
+      });
+    }, 150);
   });
 })();
 </script>

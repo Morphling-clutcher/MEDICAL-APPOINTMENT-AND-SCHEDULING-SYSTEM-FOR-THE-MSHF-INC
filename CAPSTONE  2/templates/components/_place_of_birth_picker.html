@@ -1,0 +1,210 @@
+{% comment %}
+Nationwide Place of Birth picker: Province -> City/Municipality.
+Unlike the Address picker (locked to Lanao del Sur, the clinic's own
+service area), this one covers the WHOLE Philippines, since a patient
+can have been born anywhere — loaded from
+static/data/ph_provinces_cities.json. No barangay/street level; a
+birthplace is just recorded as "City/Municipality, Province".
+Tap-to-select only, each step with its own search. Submits: hidden
+"place_of_birth" (combined "City, Province") + pob_province / pob_city
+for server-side validation.
+{% endcomment %}
+<div data-pob-picker class="space-y-2">
+  <input type="hidden" name="place_of_birth" value="{{ initial|default:'' }}" data-pob-value>
+  <input type="hidden" name="pob_province" value="" data-pob-prov-hidden>
+  <input type="hidden" name="pob_city" value="" data-pob-city-hidden>
+
+  <button type="button" data-pob-open
+          class="w-full flex items-center justify-between gap-3 bg-[#F5F7FA] rounded-xl px-4 py-3.5 text-sm text-left focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+    <span class="min-w-0">
+      <span class="block text-[10px] font-semibold uppercase tracking-wide text-gray-400">Place of Birth</span>
+      <span data-pob-label class="block truncate text-[#6B7280]">Select Province &rsaquo; City / Municipality</span>
+    </span>
+    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+  </button>
+
+  <p data-pob-error class="hidden text-[#DC2626] text-xs ml-1"></p>
+  {% if errors %}<p class="text-[#DC2626] text-xs ml-1">{{ errors.0 }}</p>{% endif %}
+
+  <!-- ============ Bottom sheet ============ -->
+  <div data-pob-sheet class="hidden fixed inset-0 z-[80]">
+    <div data-pob-backdrop class="absolute inset-0 bg-black/50"></div>
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-md sm:h-[70vh] bg-white rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85vh] shadow-2xl">
+      <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
+        <button type="button" data-pob-back class="hidden p-1 -ml-1 text-gray-500 hover:text-gray-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <h3 data-pob-title class="flex-1 text-center font-semibold text-[#1F2937]">Select Province</h3>
+        <button type="button" data-pob-close class="p-1 -mr-1 text-gray-500 hover:text-gray-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex items-center gap-5 px-4 pt-3 text-sm overflow-x-auto whitespace-nowrap">
+        <span data-pob-tab-prov class="pb-2 border-b-2 border-[#1F4D11] font-semibold text-[#1F2937]">Province</span>
+        <span data-pob-tab-city class="hidden pb-2 border-b-2 border-transparent text-gray-400">City / Municipality</span>
+      </div>
+      <div class="px-4 py-2.5">
+        <input type="text" data-pob-search autocomplete="off" placeholder="Search..."
+               class="w-full bg-[#F5F7FA] border-0 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20" />
+      </div>
+      <div data-pob-list class="flex-1 overflow-y-auto px-4 pb-6"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  if (!window.__phProvCitiesData) {
+    window.__phProvCitiesData = fetch('/static/data/ph_provinces_cities.json').then(function (r) { return r.json(); });
+  }
+
+  document.querySelectorAll('[data-pob-picker]').forEach(function (root) {
+    if (root.dataset.pobBound) return;
+    root.dataset.pobBound = '1';
+
+    var q = function (sel) { return root.querySelector(sel); };
+    var hidden = q('[data-pob-value]'), provH = q('[data-pob-prov-hidden]'), cityH = q('[data-pob-city-hidden]');
+    var openBtn = q('[data-pob-open]'), label = q('[data-pob-label]');
+    var sheet = q('[data-pob-sheet]'), backdrop = q('[data-pob-backdrop]');
+    var backBtn = q('[data-pob-back]'), closeBtn = q('[data-pob-close]'), title = q('[data-pob-title]');
+    var tabProv = q('[data-pob-tab-prov]'), tabCity = q('[data-pob-tab-city]');
+    var search = q('[data-pob-search]'), list = q('[data-pob-list]'), errEl = q('[data-pob-error]');
+    var data = null, view = 'prov';
+
+    function compose() {
+      hidden.value = (provH.value && cityH.value) ? (cityH.value + ', ' + provH.value) : '';
+    }
+    function updateLabel() {
+      if (provH.value && cityH.value) {
+        label.textContent = cityH.value + ' \u203A ' + provH.value;
+        label.classList.remove('text-[#6B7280]'); label.classList.add('text-[#1F2937]');
+      } else if (provH.value) {
+        label.textContent = provH.value + ' \u203A Select City / Municipality';
+      } else {
+        label.textContent = 'Select Province \u203A City / Municipality';
+      }
+    }
+
+    function renderList(names, onPick) {
+      list.innerHTML = '';
+      var term = (search.value || '').trim().toLowerCase();
+      var shown = term ? names.filter(function (n) { return n.toLowerCase().indexOf(term) !== -1; }) : names;
+      if (!shown.length) {
+        var p = document.createElement('p');
+        p.className = 'text-center text-gray-400 text-sm py-8';
+        p.textContent = 'No match found';
+        list.appendChild(p);
+        return;
+      }
+      var letter = '';
+      shown.forEach(function (n) {
+        var first = n.charAt(0).toUpperCase();
+        if (first !== letter) {
+          letter = first;
+          var h = document.createElement('p');
+          h.className = 'pt-4 pb-1 text-xs font-bold text-gray-400';
+          h.textContent = letter;
+          list.appendChild(h);
+        }
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'w-full text-left py-3 border-b border-gray-100 text-sm text-[#1F2937] hover:bg-brand-50 active:bg-brand-50 px-1';
+        row.textContent = n;
+        row.addEventListener('click', function () { onPick(n); });
+        list.appendChild(row);
+      });
+    }
+
+    function showProvView() {
+      view = 'prov';
+      title.textContent = 'Select Province';
+      backBtn.classList.add('hidden');
+      tabProv.className = 'pb-2 border-b-2 border-[#1F4D11] font-semibold text-[#1F2937]';
+      tabCity.classList.add('hidden');
+      search.value = ''; search.placeholder = 'Search province...';
+      renderList(Object.keys(data), pickProv);
+      list.scrollTop = 0;
+    }
+    function showCityView() {
+      view = 'city';
+      title.textContent = 'Select City / Municipality';
+      backBtn.classList.remove('hidden');
+      tabProv.className = 'pb-2 border-b-2 border-transparent text-gray-400 cursor-pointer';
+      tabProv.textContent = provH.value;
+      tabCity.classList.remove('hidden');
+      tabCity.textContent = 'City / Municipality';
+      tabCity.className = 'pb-2 border-b-2 border-[#1F4D11] font-semibold text-[#1F2937]';
+      search.value = ''; search.placeholder = 'Search city/municipality...';
+      renderList(data[provH.value] || [], pickCity);
+      list.scrollTop = 0;
+    }
+    function pickProv(name) {
+      provH.value = name; cityH.value = '';
+      compose(); updateLabel();
+      showCityView();
+    }
+    function pickCity(name) {
+      cityH.value = name;
+      compose(); updateLabel();
+      closeSheet();
+      errEl.classList.add('hidden');
+    }
+    function openSheet() {
+      sheet.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      if (provH.value && !cityH.value) showCityView();
+      else showProvView();
+    }
+    function closeSheet() {
+      sheet.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    window.__phProvCitiesData.then(function (d) {
+      data = d;
+      openBtn.addEventListener('click', openSheet);
+      closeBtn.addEventListener('click', closeSheet);
+      backdrop.addEventListener('click', closeSheet);
+      backBtn.addEventListener('click', function () { if (view === 'city') showProvView(); });
+      tabProv.addEventListener('click', function () { if (view !== 'prov') showProvView(); });
+      search.addEventListener('input', function () {
+        if (view === 'prov') renderList(Object.keys(data), pickProv);
+        else renderList(data[provH.value] || [], pickCity);
+      });
+
+      // Prefill "City, Province" (or legacy free text)
+      var init = hidden.value.trim();
+      if (init) {
+        var m = init.match(/^(.+?),\s*(.+)$/);
+        if (m) {
+          var cityGuess = m[1].trim(), provGuess = m[2].trim();
+          var prov = Object.keys(d).find(function (p) { return p.toLowerCase() === provGuess.toLowerCase(); });
+          var city = prov ? (d[prov] || []).find(function (c) { return c.toLowerCase() === cityGuess.toLowerCase(); }) : null;
+          if (prov && city) {
+            provH.value = prov;
+            cityH.value = city;
+          }
+        }
+        compose(); updateLabel();
+      }
+    });
+
+    var form = root.closest('form');
+    if (form && !form.dataset.pobSubmitBound) {
+      form.dataset.pobSubmitBound = '1';
+      form.addEventListener('submit', function (e) {
+        if (!provH.value || !cityH.value) {
+          e.preventDefault();
+          errEl.textContent = 'Please select your place of birth (province and city/municipality).';
+          errEl.classList.remove('hidden');
+          openSheet();
+        } else {
+          errEl.classList.add('hidden');
+          compose();
+        }
+      });
+    }
+  });
+})();
+</script>
