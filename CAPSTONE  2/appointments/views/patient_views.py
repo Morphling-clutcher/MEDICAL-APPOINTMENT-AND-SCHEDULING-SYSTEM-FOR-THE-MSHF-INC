@@ -49,6 +49,7 @@ def _compute_month_availability(doctor, year, month):
     'available', 'unavailable', 'past'.
     """
     today = date.today()
+    now_time = datetime.now().time()
     first_weekday, days_in_month = calendar_module.monthrange(year, month)
     month_start = date(year, month, 1)
     month_end   = date(year, month, days_in_month)
@@ -58,6 +59,13 @@ def _compute_month_availability(doctor, year, month):
             doctor=doctor, specific_date__gte=month_start, specific_date__lte=month_end
         ).values_list('specific_date', flat=True)
     )
+    # Today's own end times, so "today" can be marked unavailable once
+    # the doctor's last working-hour block has already elapsed — e.g. a
+    # patient browsing at 6 PM shouldn't be able to book "today" against
+    # an 8 AM–12 PM schedule that's long over.
+    today_end_times = list(
+        Schedule.objects.filter(doctor=doctor, specific_date=today).values_list('end_time', flat=True)
+    )
 
     weeks = []
     week = [None] * first_weekday
@@ -65,15 +73,11 @@ def _compute_month_availability(doctor, year, month):
         current_date = date(year, month, day_num)
         if current_date < today:
             status = 'past'
+        elif current_date == today:
+            still_open = any(now_time < end for end in today_end_times)
+            status = 'available' if (current_date in working_dates and still_open) else 'unavailable'
         elif current_date in working_dates:
-            if current_date == today:
-                now_time = timezone.localtime().time()
-                has_future = Schedule.objects.filter(
-                    doctor=doctor, specific_date=today, start_time__gt=now_time
-                ).exists()
-                status = 'available' if has_future else 'unavailable'
-            else:
-                status = 'available'
+            status = 'available'
         else:
             status = 'unavailable'
         week.append({'day': day_num, 'date': current_date.isoformat(), 'status': status})
@@ -363,10 +367,6 @@ def _validate_booking_date(doctor, selected_date_str):
             error = 'Cannot book an appointment in the past.'
         elif not Schedule.objects.filter(doctor=doctor, specific_date=selected_date).exists():
             error = 'The selected doctor has no schedule on this date.'
-        elif selected_date == date.today() and not Schedule.objects.filter(
-            doctor=doctor, specific_date=selected_date, start_time__gt=timezone.localtime().time()
-        ).exists():
-            error = 'All time slots for today have already passed. Please choose another date.'
 
     return error, selected_date_str
 
@@ -608,6 +608,22 @@ def book_step3_confirm(request):
             messages.error(request, 'Invalid booking data. Please try again.')
             return redirect('patient:book_step1')
 
+        # Backstop for the calendar's own availability check — a tampered
+        # or replayed POST must not be able to land on a date the doctor
+        # doesn't actually work, a date already in the past, or "today"
+        # after the doctor's last working-hour block for today has
+        # already elapsed (nothing left to assign a time against).
+        today = date.today()
+        if appointment_date < today:
+            messages.error(request, 'That date has already passed. Please pick another date.')
+            return redirect('patient:book_step2', doctor_id=doctor.pk)
+        day_blocks = list(
+            Schedule.objects.filter(doctor=doctor, specific_date=appointment_date).values_list('end_time', flat=True)
+        )
+        if not day_blocks or (appointment_date == today and not any(datetime.now().time() < end for end in day_blocks)):
+            messages.error(request, "That date is no longer available for this doctor. Please pick another date.")
+            return redirect('patient:book_step2', doctor_id=doctor.pk)
+
         # Re-validate the patient-details fields here too, server-side —
         # the review screen only carries these as hidden inputs, so a
         # tampered or replayed POST must not be able to skip Step 4's
@@ -638,20 +654,9 @@ def book_step3_confirm(request):
 
         details = form.cleaned_data
 
-        # Time-based guard for today: if all of today's slots have already
-        # started (or ended), reject the booking rather than let a stale
-        # page or direct POST sneak through.
-        if appointment_date == date.today() and not Schedule.objects.filter(
-            doctor=doctor, specific_date=appointment_date, start_time__gt=timezone.localtime().time()
-        ).exists():
-            messages.error(request, 'All time slots for today have already passed. Please choose another date.')
-            if request.htmx:
-                return render(request, 'patient/_book_step3_modal.html', {
-                    'doctor': doctor, 'appointment_date': date_str,
-                    'title': 'Time Slot Expired',
-                })
-            return redirect('patient:book_step1')
-
+        # No time-based conflict check here — there's no time yet. Staff
+        # checks for double-booking when they assign the actual time
+        # (see assign_appointment_time in doctor_views/secretary_views).
         with transaction.atomic():
             appointment = Appointment.objects.create(
                 patient          = request.user,
