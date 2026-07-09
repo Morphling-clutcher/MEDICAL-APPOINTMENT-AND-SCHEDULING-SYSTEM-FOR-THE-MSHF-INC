@@ -1,4 +1,4 @@
-import { TrendChart } from "@/components/sales-chart";
+import { AppointmentCalendar } from "@/components/appointment-calendar";
 import { DashboardStats } from "@/components/stats";
 import { Categories } from "@/components/categories";
 import { OurDoctors } from "@/components/our-doctors";
@@ -44,7 +44,11 @@ export function Dashboard({
 			</div>
 
 			{live.trend && (
-				<TrendChart data={live.trend} label={live.trendLabel || ""} />
+				<AppointmentCalendar
+					data={live.trend}
+					label={live.trendLabel || "Appointments"}
+					appointmentsHref={live.appointmentsHref || "/doctor/appointments/"}
+				/>
 			)}
 
 			{live.doctors && (

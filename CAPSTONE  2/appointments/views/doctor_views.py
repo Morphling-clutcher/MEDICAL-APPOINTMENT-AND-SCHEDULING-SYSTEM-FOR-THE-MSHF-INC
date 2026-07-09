@@ -173,7 +173,8 @@ def _build_doctor_dashboard_data(request):
     counts_by_date = {
         row['appointment_date']: row['c']
         for row in Appointment.objects.filter(
-            doctor=request.user, appointment_date__gte=trend_start, appointment_date__lte=date.today()
+            doctor=request.user, appointment_date__gte=trend_start, appointment_date__lte=date.today(),
+            status__in=['Scheduled', 'Confirmed', 'Rescheduled']
         ).values('appointment_date').annotate(c=Count('id'))
     }
     trend = [
