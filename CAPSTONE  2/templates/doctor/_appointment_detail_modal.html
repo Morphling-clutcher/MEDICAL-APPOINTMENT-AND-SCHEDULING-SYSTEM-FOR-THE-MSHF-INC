@@ -78,19 +78,6 @@
        class="flex-1 text-center bg-amber-600 text-white font-semibold py-3 rounded-xl hover:bg-amber-700 transition cursor-pointer">
       Assign Time
     </a>
-    {% elif appt.status == 'Scheduled' or appt.status == 'Rescheduled' %}
-    <a hx-get="/doctor/appointments/{{ appt.pk }}/accept/" hx-target="#modal-root" hx-swap="innerHTML"
-       class="flex-1 text-center bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 transition cursor-pointer">
-      Confirm
-    </a>
-    <a href="/doctor/appointments/{{ appt.pk }}/reschedule/"
-       class="flex-1 text-center bg-blue-100 text-blue-700 font-semibold py-3 rounded-xl hover:bg-blue-200 transition">
-      Reschedule
-    </a>
-    <a hx-get="/doctor/appointments/{{ appt.pk }}/decline/" hx-target="#modal-root" hx-swap="innerHTML"
-       class="flex-1 text-center bg-red-100 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-200 transition cursor-pointer">
-      Cancel
-    </a>
     {% elif appt.status == 'Confirmed' %}
     <a href="/doctor/appointments/{{ appt.pk }}/complete/"
        class="flex-1 text-center bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">
