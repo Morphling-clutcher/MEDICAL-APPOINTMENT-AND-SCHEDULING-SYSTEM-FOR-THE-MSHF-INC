@@ -20,18 +20,24 @@ def _slugify_name_part(value):
     return value or 'patient'
 
 
-def _generate_walkin_username(first_name, last_name):
-    """Builds a readable, unique username like 'walkin-juan-delacruz' (with
-    a numeric suffix if that's already taken) — walk-in patients never log
-    in with it, but it still shows up in admin/secretary patient lists, so
-    it should be recognizable rather than a random string."""
-    base = f"walkin-{_slugify_name_part(first_name)}-{_slugify_name_part(last_name)}"
+def _generate_prefixed_username(prefix, first_name, last_name):
+    """Builds a readable, unique username like 'walkin-juan-delacruz' or
+    'google-juan-delacruz' (with a numeric suffix if that's already taken).
+    Auto-created patients never type this username themselves, but it still
+    shows up in admin/secretary patient lists, so it should be recognizable
+    rather than a random string — the prefix says where the account came
+    from."""
+    base = f"{prefix}-{_slugify_name_part(first_name)}-{_slugify_name_part(last_name)}"
     username = base
     suffix = 1
     while CustomUser.objects.filter(username=username).exists():
         suffix += 1
         username = f"{base}-{suffix}"
     return username
+
+
+def _generate_walkin_username(first_name, last_name):
+    return _generate_prefixed_username('walkin', first_name, last_name)
 
 
 class WalkInPatientForm(forms.Form):

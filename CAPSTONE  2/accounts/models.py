@@ -69,6 +69,35 @@ class DoctorProfile(models.Model):
         return f"Dr. {self.user.get_full_name()} — {self.specialization}"
 
 
+class SocialAccount(models.Model):
+    """Links a CustomUser to an external identity provider (Google for now;
+    'facebook' is reserved for when Meta app review is sorted out). Login
+    matching is ALWAYS by (provider, provider_user_id) — the provider's own
+    stable subject ID — never by email, since emails can change hands or be
+    recycled on the provider's side. Only patient accounts ever get linked;
+    staff must keep using username/password."""
+    PROVIDER_CHOICES = [
+        ('google',   'Google'),
+        ('facebook', 'Facebook'),
+    ]
+    user             = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='social_accounts')
+    provider         = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
+    provider_user_id = models.CharField(max_length=255)
+    # Snapshot of the email the provider reported when the link was made.
+    # Informational only (support/debugging) — never used for matching.
+    email_at_link    = models.CharField(max_length=254, blank=True)
+    created_at       = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['provider', 'provider_user_id'], name='unique_provider_identity'),
+            models.UniqueConstraint(fields=['provider', 'user'], name='unique_provider_per_user'),
+        ]
+
+    def __str__(self):
+        return f"{self.get_provider_display()} link for {self.user.username}"
+
+
 class SecretaryProfile(models.Model):
     user            = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='secretary_profile')
     assigned_doctor = models.ForeignKey(

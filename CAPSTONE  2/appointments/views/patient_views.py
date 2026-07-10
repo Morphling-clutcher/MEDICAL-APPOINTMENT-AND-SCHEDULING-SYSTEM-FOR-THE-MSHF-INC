@@ -280,8 +280,28 @@ def appointment_list(request):
     })
 
 
+def _profile_incomplete_redirect(request):
+    """Booking needs a complete patient record, but social-login (Google)
+    signups arrive with an empty profile — the provider never supplies
+    address or place of birth, which every other patient record here has.
+    Rather than blocking these patients at login, booking is where the gap
+    gets enforced: returns a redirect to the profile-edit page when either
+    field is missing, or None when the profile is complete."""
+    profile = getattr(request.user, 'patient_profile', None)
+    if profile and profile.address.strip() and profile.place_of_birth.strip():
+        return None
+    messages.warning(
+        request,
+        'Please complete your profile (address and place of birth) before booking an appointment.'
+    )
+    return redirect('accounts:profile_edit')
+
+
 @role_required('patient')
 def book_step1(request):
+    incomplete = _profile_incomplete_redirect(request)
+    if incomplete:
+        return incomplete
     doctors = CustomUser.objects.filter(role='doctor').select_related('doctor_profile').annotate(
         patient_count=models.Count('doctor_appointments__patient', distinct=True),
     )
@@ -598,6 +618,13 @@ def book_step4_details(request, doctor_id):
 @role_required('patient')
 def book_step3_confirm(request):
     if request.method == 'POST':
+        # Backstop for the profile-completion gate on book_step1 — a
+        # bookmarked or hand-crafted confirm POST must not be able to
+        # create an appointment for a patient with an incomplete profile.
+        incomplete = _profile_incomplete_redirect(request)
+        if incomplete:
+            return incomplete
+
         doctor_id  = request.POST.get('doctor_id')
         date_str   = request.POST.get('appointment_date')
 

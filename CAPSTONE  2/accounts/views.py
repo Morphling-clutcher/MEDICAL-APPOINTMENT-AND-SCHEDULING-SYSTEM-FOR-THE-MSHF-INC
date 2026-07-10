@@ -7,12 +7,22 @@ from .forms import (
 )
 from .models import CustomUser, PatientProfile, DoctorProfile, SecretaryProfile
 from .decorators import role_required
+from .social_auth import provider_is_configured
 from notifications.models import Notification
 
 
 def signup_redirect(request):
     """Redirect /signup/ to /register/ for backwards compatibility"""
     return redirect('accounts:register')
+
+
+def _social_providers():
+    """Which social sign-in buttons the login/register card should render as
+    real links vs. the disabled 'Coming soon' placeholders."""
+    return {
+        'google': provider_is_configured('google'),
+        'facebook': provider_is_configured('facebook'),
+    }
 
 
 def _notify_admins(message):
@@ -37,6 +47,7 @@ def login_view(request):
     return render(request, 'accounts/register.html', {
         'register_form': PatientRegistrationForm(),
         'active_panel': 'login',
+        'social_providers': _social_providers(),
     })
 
 
@@ -59,6 +70,7 @@ def register_view(request):
     return render(request, 'accounts/register.html', {
         'register_form': form,
         'active_panel': 'register',
+        'social_providers': _social_providers(),
     })
 
 
